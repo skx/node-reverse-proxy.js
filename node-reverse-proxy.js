@@ -34,7 +34,7 @@
  * --
  * http://www.steve.org.uk/
  *
-*/
+ */
 
 
 /**
@@ -82,7 +82,7 @@ var re_Hosts = {};
  * requests and proxy/rewrite them.
  *
  */
-var handler = function(req, res) {
+var handler = function (req, res) {
 
     /**
      * Access the Host: which we received, ensuring it is
@@ -95,18 +95,16 @@ var handler = function(req, res) {
     /**
      * Loggy
      */
-    if ( g_debug )
-    {
-        console.log( "Request for " + vhost + req.url + " from " + req.connection.remoteAddress );
+    if (g_debug) {
+        console.log("Request for " + vhost + req.url + " from " + req.connection.remoteAddress);
     }
 
     /**
      * If there is a port in the vhost-name then we'll drop it.
      */
-    var port  = vhost.indexOf( ':' );
-    if ( ( port ) && ( port > 0 ) )
-    {
-        vhost = vhost.substr( 0, port );
+    var port = vhost.indexOf(':');
+    if ((port) && (port > 0)) {
+        vhost = vhost.substr(0, port);
     }
 
     /**
@@ -126,12 +124,10 @@ var handler = function(req, res) {
     /**
      * This lets us use our vhosts as regexps.  We might not want that?
      */
-    for( var host in global.options )
-    {
-        var hostRE = re_Hosts[ host ];
-        if ( hostRE.exec(vhost)  )
-        {
-            ent   = global.options[host];
+    for (var host in global.options) {
+        var hostRE = re_Hosts[host];
+        if (hostRE.exec(vhost)) {
+            ent = global.options[host];
             vhost = host;
         }
     }
@@ -140,32 +136,28 @@ var handler = function(req, res) {
     /**
      * If that succeeded it is a host we know about.
      */
-    if ( ent )
-    {
+    if (ent) {
         /**
          * Find any rewrite-rules which might be present for this vhost.
          */
         var rules = global.options[vhost]['rules'];
-        if ( rules )
-        {
-            Object.keys(rules).forEach( function(rule) {
+        if (rules) {
+            Object.keys(rules).forEach(function (rule) {
 
                 /**
                  * Find the pre-compiled regexp for this rule - execute it.
                  */
-                var re    = re_Rewrites[rule];
+                var re = re_Rewrites[rule];
                 var match = re.exec(req.url);
 
-                if ( match )
-                {
+                if (match) {
 
                     /**
                      * If the rule matches we have a hit; we need
                      * to rewrite.
                      */
-                    if ( g_debug )
-                    {
-                        console.log( "\tRewrite '" + rule + "' -> '"  + rules[rule] + "'" );
+                    if (g_debug) {
+                        console.log("\tRewrite '" + rule + "' -> '" + rules[rule] + "'");
                     }
 
                     var newURL = rules[rule];
@@ -174,12 +166,10 @@ var handler = function(req, res) {
                      * If we have a positive number of matches (i.e. "captures") then we need to search and replace
                      * them in turn.
                      */
-                    if ( match.length > 1 )
-                    {
+                    if (match.length > 1) {
                         var i = 1;
-                        while( i <= match.length )
-                        {
-                            newURL = newURL.replace( "$" + i , match[i] );
+                        while (i <= match.length) {
+                            newURL = newURL.replace("$" + i, match[i]);
                             i = i + 1;
                         }
                     }
@@ -188,13 +178,12 @@ var handler = function(req, res) {
                      * If the destination rule begins with
                      * "http" we will instead issue a redirect.
                      */
-                    if ( newURL.match( "^http" ) )
-                    {
-                        res.writeHead(301, { 'Location': newURL } );
+                    if (newURL.match("^http")) {
+                        res.writeHead(301, {
+                            'Location': newURL
+                        });
                         res.end();
-                    }
-                    else
-                    {
+                    } else {
                         /**
                          * Otherwise we'll update the request - on the basis that we're going to proxy
                          * it shortly...
@@ -210,15 +199,13 @@ var handler = function(req, res) {
          * Now a functional modifier, which will be fun.
          */
         var func = global.options[vhost]['functions'];
-        if ( func )
-        {
+        if (func) {
             var orig_vhost = req.headers["ORIG_HOST"];
 
-            Object.keys(func).forEach( function(fun) {
+            Object.keys(func).forEach(function (fun) {
 
                 /* The name of the function is a regexp against the path. */
-                if ( req.url.match( fun ) )
-                {
+                if (req.url.match(fun)) {
                     global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res);
                 }
             })
@@ -240,13 +227,12 @@ var handler = function(req, res) {
         /**
          * If that lookup fails we're fucked.
          */
-        if ( ( ! port ) || ( ! host ) )
-        {
-            res.writeHead(500, {'content-type': 'text/html'});
+        if ((!port) || (!host)) {
+            res.writeHead(500, {
+                'content-type': 'text/html'
+            });
             res.end('Error finding host details for virtual host <tt>' + vhost + '</tt>');
-        }
-        else
-        {
+        } else {
 
             /**
              * Otherwise we need to create the proxy-magic.
@@ -264,11 +250,11 @@ var handler = function(req, res) {
              * Create the proxier
              */
             var proxy_request = proxy.request(req.method, req.url, req.headers);
-            proxy_request.addListener('response', function(proxy_response) {
-                proxy_response.addListener('data', function(chunk) {
+            proxy_request.addListener('response', function (proxy_response) {
+                proxy_response.addListener('data', function (chunk) {
                     res.write(chunk, 'binary');
                 });
-                proxy_response.addListener('end', function() {
+                proxy_response.addListener('end', function () {
                     res.end();
                 });
                 res.writeHead(proxy_response.statusCode, proxy_response.headers);
@@ -277,15 +263,17 @@ var handler = function(req, res) {
             /**
              * Wire it all up, old-school.
              */
-            proxy_request.socket.addListener('error', function(socketException){
-                console.log( "Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable"  );
-                res.writeHead(503, {'content-type': 'text/html'});
+            proxy_request.socket.addListener('error', function (socketException) {
+                console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
+                res.writeHead(503, {
+                    'content-type': 'text/html'
+                });
                 res.end('Back-end host unreachable.');
             });
-            req.addListener('data', function(chunk) {
+            req.addListener('data', function (chunk) {
                 proxy_request.write(chunk, 'binary');
             });
-            req.addListener('end', function() {
+            req.addListener('end', function () {
                 proxy_request.end();
             });
         }
@@ -293,13 +281,13 @@ var handler = function(req, res) {
         /**
          * Our work here is done.
          */
-    }
-    else
-    {
+    } else {
         /**
          * OK we received a request for a vhost we don't know about.
          */
-        res.writeHead(500, {'content-type': 'text/html'});
+        res.writeHead(500, {
+            'content-type': 'text/html'
+        });
         res.end('Error finding host details for virtual host <tt>' + vhost + '</tt>');
     }
 };
@@ -311,7 +299,7 @@ var handler = function(req, res) {
  * Last ditch error-recovery
  */
 process.on('uncaughtException', function (err) {
-    console.log("ERROR:" + err );
+    console.log("ERROR:" + err);
 });
 
 
@@ -334,33 +322,27 @@ var file = "./rewrites.js";
 var inFile = false;
 var inPort = false;
 
-process.argv.forEach(function(arg) {
+process.argv.forEach(function (arg) {
 
-    if ( inFile )
-    {
+    if (inFile) {
         file = arg;
         inFile = false;
     }
-    if ( inPort )
-    {
+    if (inPort) {
         port = arg;
         inPort = false;
     }
-    if ( arg.match( "-+config" ) )
-    {
+    if (arg.match("-+config")) {
         inFile = true;
     }
-    if ( arg.match( "-+debug" ) )
-    {
+    if (arg.match("-+debug")) {
         g_debug = true;
     }
-    if ( arg.match( "-+port" ) )
-    {
+    if (arg.match("-+port")) {
         inPort = true;
     }
-    if ( arg.match( "-+help" ) )
-    {
-        console.log( "node-reverse-proxy [--help|--config file|--port N]" );
+    if (arg.match("-+help")) {
+        console.log("node-reverse-proxy [--help|--config file|--port N]");
         process.exit(1);
     }
 })
@@ -368,9 +350,8 @@ process.argv.forEach(function(arg) {
 /**
  * Ensure we weren't left dangling.
  */
-if ( inFile || inPort )
-{
-    console.log( "Missing argument!" );
+if (inFile || inPort) {
+    console.log("Missing argument!");
     process.exit(1);
 }
 
@@ -378,13 +359,10 @@ if ( inFile || inPort )
 /**
  * See if our file exists.
  */
-if ( path.existsSync( file ) )
-{
-    global = require( file );
-}
-else
-{
-    console.log( "Configuration file not found - " + file );
+if (path.existsSync(file)) {
+    global = require(file);
+} else {
+    console.log("Configuration file not found - " + file);
     process.exit(1);
 }
 
@@ -397,30 +375,29 @@ else
  * Doing this offers a significant speedup.
  *
  */
-Object.keys(global.options).forEach( function(vhost) {
+Object.keys(global.options).forEach(function (vhost) {
 
     /**
      * Virtual Hostname regexp.
      */
-    re_Hosts[vhost] = new RegExp( "^" + vhost + "$" );
+    re_Hosts[vhost] = new RegExp("^" + vhost + "$");
 
     /**
      * Now process each existing rewrite rule for that vhost.
      */
     rules = global.options[vhost]['rules'];
-    if ( rules )
-    {
-        Object.keys(rules).forEach( function(rule) {
-            re_Rewrites[rule]  = new RegExp( rule );
-        } )
+    if (rules) {
+        Object.keys(rules).forEach(function (rule) {
+            re_Rewrites[rule] = new RegExp(rule);
+        })
     }
-} )
+})
 
 /**
  * Entry point - start our server up on the port & addresses we've got
  * defined.
  */
-console.log( "node-reverse-proxy.js starting, reading from " + file + "\n");
+console.log("node-reverse-proxy.js starting, reading from " + file + "\n");
 
 
 /**
@@ -432,10 +409,9 @@ var port = port || global.port;
 /**
  * Bind to each requested address, defined in the configuration file.
  */
-for (val in global.bind)
-{
-    console.log( "Binding to " + global.bind[val] + ":" + port );
-    http.createServer().addListener("request",handler).listen(port, global.bind[val] );
+for (val in global.bind) {
+    console.log("Binding to " + global.bind[val] + ":" + port);
+    http.createServer().addListener("request", handler).listen(port, global.bind[val]);
 }
 
 
