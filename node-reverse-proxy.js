@@ -1,5 +1,3 @@
-#!/usr/bin/nodejs
-
 /**
  * This is a proof of concept HTTP reverse-proxy written using Node.js
  *
@@ -49,7 +47,7 @@ var path = require('path');
 /**
  * Debug?
  */
-var g_debug = false
+var g_debug = false;
 
 
 /**
@@ -97,13 +95,16 @@ var handler = function(req, res) {
     /**
      * Loggy
      */
-    g_debug && console.log( "Request for " + vhost + req.url + " from " + req.connection.remoteAddress );
+    if ( g_debug )
+    {
+        console.log( "Request for " + vhost + req.url + " from " + req.connection.remoteAddress );
+    }
 
     /**
      * If there is a port in the vhost-name then we'll drop it.
      */
-    var port  = vhost.indexOf( ':' )
-    if ( ( port != null ) && ( port > 0 ) )
+    var port  = vhost.indexOf( ':' );
+    if ( ( port ) && ( port > 0 ) )
     {
         vhost = vhost.substr( 0, port );
     }
@@ -112,36 +113,39 @@ var handler = function(req, res) {
      * Save away the original submitted Host: header, this might be useful
      * for one of our functional hooks.
      */
-    req.headers["ORIG_HOST"] = vhost
+    req.headers["ORIG_HOST"] = vhost;
+
+
+    /**
+     * The entry of rules/functions/host/port we're going to lookup
+     * for this incoming request.
+     */
+    var ent;
+
 
     /**
      * This lets us use our vhosts as regexps.  We might not want that?
      */
     for( var host in global.options )
     {
-        var hostRE = re_Hosts[ host ]
-        if ( hostRE.exec(vhost) != null )
+        var hostRE = re_Hosts[ host ];
+        if ( hostRE.exec(vhost)  )
         {
-            ent   = global.options[host]
-            vhost = host
+            ent   = global.options[host];
+            vhost = host;
         }
     }
-
-    /**
-     * lookup the entry in our table.
-     */
-    var ent = global.options[vhost]
 
 
     /**
      * If that succeeded it is a host we know about.
      */
-    if ( ent != null )
+    if ( ent )
     {
         /**
          * Find any rewrite-rules which might be present for this vhost.
          */
-        var rules = global.options[vhost]['rules']
+        var rules = global.options[vhost]['rules'];
         if ( rules )
         {
             Object.keys(rules).forEach( function(rule) {
@@ -150,18 +154,21 @@ var handler = function(req, res) {
                  * Find the pre-compiled regexp for this rule - execute it.
                  */
                 var re    = re_Rewrites[rule];
-                var match = re.exec(req.url)
+                var match = re.exec(req.url);
 
-                if ( match != null )
+                if ( match )
                 {
 
                     /**
                      * If the rule matches we have a hit; we need
                      * to rewrite.
                      */
-                     g_debug &&  console.log( "\tRewrite '" + rule + "' -> '"  + rules[rule] + "'" );
+                    if ( g_debug )
+                    {
+                        console.log( "\tRewrite '" + rule + "' -> '"  + rules[rule] + "'" );
+                    }
 
-                    var newURL = rules[rule]
+                    var newURL = rules[rule];
 
                     /**
                      * If we have a positive number of matches (i.e. "captures") then we need to search and replace
@@ -192,7 +199,7 @@ var handler = function(req, res) {
                          * Otherwise we'll update the request - on the basis that we're going to proxy
                          * it shortly...
                          */
-                        req.url = newURL
+                        req.url = newURL;
                     }
                 }
             })
@@ -202,10 +209,10 @@ var handler = function(req, res) {
         /**
          * Now a functional modifier, which will be fun.
          */
-        var func = global.options[vhost]['functions']
+        var func = global.options[vhost]['functions'];
         if ( func )
         {
-            var orig_vhost = req.headers["ORIG_HOST"]
+            var orig_vhost = req.headers["ORIG_HOST"];
 
             Object.keys(func).forEach( function(fun) {
 
@@ -227,8 +234,8 @@ var handler = function(req, res) {
          * Lookup the host+port we're going to proxy to.
          */
 
-        port = global.options[vhost]['port']
-        host = global.options[vhost]['host']
+        port = global.options[vhost]['port'];
+        host = global.options[vhost]['host'];
 
         /**
          * If that lookup fails we're fucked.
@@ -244,7 +251,7 @@ var handler = function(req, res) {
             /**
              * Otherwise we need to create the proxy-magic.
              */
-            var proxy = http.createClient(port, host)
+            var proxy = http.createClient(port, host);
             req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
 
             /**
@@ -318,42 +325,43 @@ process.on('uncaughtException', function (err) {
 /**
  * Default configuration file
  */
-file = "./rewrites.js";
+var file = "./rewrites.js";
 
 
 /**
  * Simple command-line parsing.
  */
-inFile = false, inPort = false
+var inFile = false;
+var inPort = false;
 
 process.argv.forEach(function(arg) {
 
     if ( inFile )
     {
         file = arg;
-        inFile = false
+        inFile = false;
     }
     if ( inPort )
     {
-        port = arg
-        inPort = false
+        port = arg;
+        inPort = false;
     }
     if ( arg.match( "-+config" ) )
     {
-        inFile = true
+        inFile = true;
     }
     if ( arg.match( "-+debug" ) )
     {
-        g_debug = true
+        g_debug = true;
     }
     if ( arg.match( "-+port" ) )
     {
-        inPort = true
+        inPort = true;
     }
     if ( arg.match( "-+help" ) )
     {
-        console.log( "node-reverse-proxy [--help|--config file|--port N]" )
-        process.exit(1)
+        console.log( "node-reverse-proxy [--help|--config file|--port N]" );
+        process.exit(1);
     }
 })
 
@@ -362,8 +370,8 @@ process.argv.forEach(function(arg) {
  */
 if ( inFile || inPort )
 {
-    console.log( "Missing argument!" )
-    process.exit(1)
+    console.log( "Missing argument!" );
+    process.exit(1);
 }
 
 
@@ -372,12 +380,12 @@ if ( inFile || inPort )
  */
 if ( path.existsSync( file ) )
 {
-    global =  require( file );
+    global = require( file );
 }
 else
 {
-    console.log( "Configuration file not found - " + file )
-    process.exit(1)
+    console.log( "Configuration file not found - " + file );
+    process.exit(1);
 }
 
 
@@ -403,7 +411,7 @@ Object.keys(global.options).forEach( function(vhost) {
     if ( rules )
     {
         Object.keys(rules).forEach( function(rule) {
-            re_Rewrites[rule]  = new RegExp( rule )
+            re_Rewrites[rule]  = new RegExp( rule );
         } )
     }
 } )
@@ -412,14 +420,14 @@ Object.keys(global.options).forEach( function(vhost) {
  * Entry point - start our server up on the port & addresses we've got
  * defined.
  */
-console.log( "node-reverse-proxy.js starting, reading from " + file + "\n")
+console.log( "node-reverse-proxy.js starting, reading from " + file + "\n");
 
 
 /**
  * Port is either that from the command-line parser, or from the
  * configuration file.
  */
-var port = port || global.port
+var port = port || global.port;
 
 /**
  * Bind to each requested address, defined in the configuration file.
@@ -434,4 +442,4 @@ for (val in global.bind)
 /**
  * Now we're cooking on gas.
  */
-console.log("\nAwaiting orders ...")
+console.log("\nAwaiting orders ...");
