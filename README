@@ -13,17 +13,51 @@ Blog Entries:
 Introduction
 ------------
 
+node-reverse-proxy is a simple reverse HTTP proxy, which is designed
+to listen upon a public IP address, and redirect each incoming
+request to a back-end server.
+
+Due to node.jss' scalable event-based model this reverse-proxy server
+can handle many many concurrent connections without the heavy-weight
+resource usage of a larger solution such as Apache.
+
 
 Features
 --------
+
+In addition to proxying incoming connections to remote HTTP servers,
+on a per-vhost basis, this server can also rewrite requests before
+they are proxied.
+
+There are two ways that rewrites may be specified:
+
+  * Either via regular expressions, in a simpilar fashion to
+    Apache's mod_rewrite module.
+
+  * Via Javascript callbacks, which allow more control.
 
 
 Installation
 ------------
 
+To install the software you need only have the node.js binary
+installed upon your system, and the "node-reverse-proxy.js" file
+located upon your filesystem.
+
+Once you've created a suitable configuration file, perhaps consulting
+the examples provided, you may launch your proxy via:
+
+   node ./node-reverse-proxy.js --config ./rules.js
+
+This will load the rules you've defined in the file "rules.js" and launch
+the server appropriately.
+
 
 Usage
 -----
+
+Simple use is demonstrated by the provided examples.  Further examples
+will be provided in due course.
 
 
 
