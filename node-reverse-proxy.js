@@ -252,6 +252,18 @@ var handler = function (req, res) {
 
 
             /**
+             * The proxied connection might fail.
+             */
+            proxy.addListener('error', function (socketException) {
+                console.log("Request for " + escape(vhost) + " failed - back-end server " + host + ":" + port + " unreachable");
+                res.writeHead(503, {
+                    'content-type': 'text/html'
+                });
+                res.end('Back-end unreachable.');
+            });
+
+
+            /**
              * Append something to the user-agent, and add an
              * X-Forwarded-For: header.
              */
@@ -288,14 +300,6 @@ var handler = function (req, res) {
             /**
              * Wire it all up, old-school.
              */
-            proxy_request.socket.addListener('error', function (socketException) {
-                console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
-                res.writeHead(503, {
-                    'content-type': 'text/html'
-                });
-                res.end('Back-end host unreachable.');
-            });
-
             req.addListener('data', function (chunk) {
                 proxy_request.write(chunk, 'binary');
             });
