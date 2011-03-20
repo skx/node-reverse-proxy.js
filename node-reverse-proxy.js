@@ -1,11 +1,12 @@
 /**
- * This is a proof of concept HTTP reverse-proxy written using Node.js
+ * A Reverse-HTTP proxy written using Node.js
+ *   http://www.steve.org.uk/Software/node-reverse-proxy/
  *
  *
  * Overview
  * --------
  *
- * This reverse-proxy is designed to do three things:
+ * This reverse-HTTP proxy is designed to do three things:
  *
  *  1.  Listen upon a port for incoming requests and route them to
  *     one of a number of HTTP instances, based entirely upon the
@@ -15,7 +16,7 @@
  *
  *  3.  Make arbitrary rewrites via functions hooked on URL paths.
  *
- *  So in combination this means we can accept requests and pass them
+ *  In combination this means we can accept requests and pass them
  * through to local (or remote) HTTP servers - optionally rewriting
  * parts of the request.
  *
