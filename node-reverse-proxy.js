@@ -222,10 +222,10 @@ var handler = function (req, res) {
          */
 
         port = global.options[vhost]['port'];
-        host = global.options[vhost]['host'];
+        host = global.options[vhost]['host'] || "127.0.0.1";
 
         /**
-         * If that lookup fails we're fucked.
+         * If that lookup fails we're out of luck.
          */
         if ((!port) || (!host)) {
             res.writeHead(500, {
