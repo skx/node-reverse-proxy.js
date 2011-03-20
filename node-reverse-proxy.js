@@ -17,7 +17,7 @@
  *  3.  Make arbitrary rewrites via functions hooked on URL paths.
  *
  *  In combination this means we can accept requests and pass them
- * through to local (or remote) HTTP servers - optionally rewriting
+ * through to local (or remote) HTTP servers, optionally rewriting
  * parts of the request.
  *
  *
