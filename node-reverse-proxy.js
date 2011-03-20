@@ -255,7 +255,7 @@ var handler = function (req, res) {
              * The proxied connection might fail.
              */
             proxy.addListener('error', function (socketException) {
-                console.log("Request for " + escape(vhost) + " failed - back-end server " + host + ":" + port + " unreachable");
+                console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
                 res.writeHead(503, {
                     'content-type': 'text/html'
                 });
