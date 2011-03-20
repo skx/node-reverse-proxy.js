@@ -100,6 +100,11 @@ var handler = function (req, res) {
         console.log("Request for " + vhost + req.url + " from " + req.connection.remoteAddress);
     }
 
+    if ( req.url.substr(0,2) == "//" )
+    {
+        console.log("Request for BOGUS URL [http://" + vhost + req.url + "] from " + req.connection.remoteAddress);
+        req.url = req.url.substr(1);
+    }
     /**
      * If there is a port in the vhost-name then we'll drop it.
      */
