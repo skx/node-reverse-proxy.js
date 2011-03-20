@@ -243,84 +243,85 @@ var handler = function (req, res) {
                 'content-type': 'text/html'
             });
             res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
-        } else {
-
-            /**
-             * Otherwise we need to create the proxy-magic.
-             */
-            var proxy = http.createClient(port, host);
-
-
-            /**
-             * The proxied connection might fail.
-             */
-            proxy.addListener('error', function (socketException) {
-                console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
-                res.writeHead(503, {
-                    'content-type': 'text/html'
-                });
-                res.end('Back-end unreachable.');
-            });
-
-
-            /**
-             * Append something to the user-agent, and add an
-             * X-Forwarded-For: header.
-             */
-            var agent = ""
-            if ( req.headers["user-agent"] ) {
-                agent = req.headers["user-agent"] + "; ";
-            }
-            req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
-            req.headers["User-Agent"]      = agent + "node-reverse-proxy.js";
-
-            /**
-             * Create the proxier
-             */
-            var proxy_request = proxy.request(req.method, req.url, req.headers);
-
-            proxy_request.addListener('response', function (proxy_response) {
-
-                proxy_response.addListener('data', function (chunk) {
-                    res.write(chunk, 'binary');
-                });
-                proxy_response.addListener('end', function () {
-                    res.end();
-                });
-
-                res.writeHead(proxy_response.statusCode, proxy_response.headers);
-                // Status code = 304
-                // No 'data' event and no 'end'
-                if (proxy_response.statusCode === 304) {
-                    res.end();
-                    return;
-                }
-            });
-
-            /**
-             * Wire it all up, old-school.
-             */
-            req.addListener('data', function (chunk) {
-                proxy_request.write(chunk, 'binary');
-            });
-
-            req.addListener('end', function () {
-                proxy_request.end();
-            });
+            return;
         }
+
+        /**
+         * Otherwise we need to create the proxy-magic.
+         */
+        var proxy = http.createClient(port, host);
+
+        /**
+         * The proxied connection might fail.
+         */
+        proxy.addListener('error', function (socketException) {
+            console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
+            res.writeHead(503, {
+                'content-type': 'text/html'
+            });
+            res.end('Back-end unreachable.');
+        });
+
+
+        /**
+         * Append something to the user-agent, and add an
+         * X-Forwarded-For: header.
+         */
+        var agent = ""
+        if ( req.headers["user-agent"] ) {
+            agent = req.headers["user-agent"] + "; ";
+        }
+        req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
+        req.headers["User-Agent"]      = agent + "node-reverse-proxy.js";
+
+        /**
+         * Create the proxier
+         */
+        var proxy_request = proxy.request(req.method, req.url, req.headers);
+
+        proxy_request.addListener('response', function (proxy_response) {
+
+            proxy_response.addListener('data', function (chunk) {
+                res.write(chunk, 'binary');
+            });
+            proxy_response.addListener('end', function () {
+                res.end();
+            });
+
+            res.writeHead(proxy_response.statusCode, proxy_response.headers);
+            // Status code = 304
+            // No 'data' event and no 'end'
+            if (proxy_response.statusCode === 304) {
+                res.end();
+                return;
+            }
+        });
+
+        /**
+         * Wire it all up, old-school.
+         */
+        req.addListener('data', function (chunk) {
+            proxy_request.write(chunk, 'binary');
+        });
+
+        req.addListener('end', function () {
+            proxy_request.end();
+        });
 
         /**
          * Our work here is done.
          */
-    } else {
-        /**
-         * OK we received a request for a vhost we don't know about.
-         */
-        res.writeHead(500, {
-            'content-type': 'text/html'
-        });
-        res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
+        return;
+
     }
+
+    /**
+     * OK we received a request for a vhost we don't know about.
+     */
+    res.writeHead(500, {
+        'content-type': 'text/html'
+    });
+    res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
 };
 
 
