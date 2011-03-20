@@ -112,7 +112,7 @@ var handler = function (req, res) {
      * Save away the original submitted Host: header, this might be useful
      * for one of our functional hooks.
      */
-    req.headers["ORIG_HOST"] = vhost;
+    var orig_vhost = vhost;
 
 
     /**
@@ -200,17 +200,27 @@ var handler = function (req, res) {
          * Now a functional modifier, which will be fun.
          */
         var func = global.options[vhost]['functions'];
+        var over = false;
+
         if (func) {
-            var orig_vhost = req.headers["ORIG_HOST"];
 
             Object.keys(func).forEach(function (fun) {
 
-                /* The name of the function is a regexp against the path. */
-                if (req.url.match(fun)) {
-                    global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res);
+                if ( ! over )
+                {
+                    /* The name of the function is a regexp against the path. */
+                    if (req.url.match(fun)) {
+                        over = global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res);
+                    }
                 }
             })
         }
+
+        if ( over )
+        {
+            return;
+        }
+
 
         /**
          * OK at this point we have either:
@@ -239,31 +249,34 @@ var handler = function (req, res) {
              * Otherwise we need to create the proxy-magic.
              */
             var proxy = http.createClient(port, host);
-            req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
+
 
             /**
-             * Append something to the user-agent.
+             * Append something to the user-agent, and add an
+             * X-Forwarded-For: header.
              */
             var agent = ""
             if ( req.headers["user-agent"] ) {
                 agent = req.headers["user-agent"] + "; ";
             }
-            req.headers["User-Agent"] = agent + "node-reverse-proxy.js";
-
+            req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
+            req.headers["User-Agent"]      = agent + "node-reverse-proxy.js";
 
             /**
              * Create the proxier
              */
             var proxy_request = proxy.request(req.method, req.url, req.headers);
+
             proxy_request.addListener('response', function (proxy_response) {
+
                 proxy_response.addListener('data', function (chunk) {
                     res.write(chunk, 'binary');
                 });
                 proxy_response.addListener('end', function () {
                     res.end();
                 });
-                res.writeHead(proxy_response.statusCode, proxy_response.headers);
 
+                res.writeHead(proxy_response.statusCode, proxy_response.headers);
                 // Status code = 304
                 // No 'data' event and no 'end'
                 if (proxy_response.statusCode === 304) {
@@ -282,9 +295,11 @@ var handler = function (req, res) {
                 });
                 res.end('Back-end host unreachable.');
             });
+
             req.addListener('data', function (chunk) {
                 proxy_request.write(chunk, 'binary');
             });
+
             req.addListener('end', function () {
                 proxy_request.end();
             });
