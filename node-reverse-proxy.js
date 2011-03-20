@@ -242,10 +242,14 @@ var handler = function (req, res) {
             req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
 
             /**
-             * Append soemthing to the user-agent.
+             * Append something to the user-agent.
              */
-            var agent = req.headers["User-Agent"] ? req.headers["User-Agent"] : "";
-            req.headers["User-Agent"] = agent + ";node-reverse-proxy.js";
+            var agent = ""
+            if ( req.headers["user-agent"] ) {
+                agent = req.headers["user-agent"] + "; ";
+            }
+            req.headers["User-Agent"] = agent + "node-reverse-proxy.js";
+
 
             /**
              * Create the proxier
@@ -259,6 +263,13 @@ var handler = function (req, res) {
                     res.end();
                 });
                 res.writeHead(proxy_response.statusCode, proxy_response.headers);
+
+                // Status code = 304
+                // No 'data' event and no 'end'
+                if (proxy_response.statusCode === 304) {
+                    res.end();
+                    return;
+                }
             });
 
             /**
