@@ -281,6 +281,21 @@ var handler = function (req, res) {
 
         proxy_request.addListener('response', function (proxy_response) {
 
+            if (proxy_response.headers.connection) {
+                if (req.headers.connection)
+                    proxy_response.headers.connection = req.headers.connection;
+                else
+                    proxy_response.headers.connection = 'close';
+            }
+
+            res.writeHead(proxy_response.statusCode, proxy_response.headers);
+
+            // No 'data' event and no 'end'
+            if (proxy_response.statusCode === 304) {
+                res.end();
+                return;
+            }
+
             proxy_response.addListener('data', function (chunk) {
                 res.write(chunk, 'binary');
             });
@@ -288,13 +303,6 @@ var handler = function (req, res) {
                 res.end();
             });
 
-            res.writeHead(proxy_response.statusCode, proxy_response.headers);
-            // Status code = 304
-            // No 'data' event and no 'end'
-            if (proxy_response.statusCode === 304) {
-                res.end();
-                return;
-            }
         });
 
         /**
