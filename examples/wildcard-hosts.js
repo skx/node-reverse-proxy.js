@@ -1,4 +1,3 @@
-
 /**
  * This configuration file is a little more advanced than the previous
  * ones, and relies upon having wildcard DNS-entries present.
@@ -26,7 +25,6 @@
  */
 exports.options = {
 
-
     /**
       * rewrites for dynamic domains.
       *
@@ -35,14 +33,13 @@ exports.options = {
       * hostnames.
       *
       */
-    '([^.]*).repository.steve.org.uk':
-    {
+    '([^.]*).repository.steve.org.uk': {
         /**
          * Rewrites for static files - these will be handled via a
          * separate virtual host.
          */
         'rules': {
-            '^/robots.txt':  'http://repository.steve.org.uk/robots.txt',
+            '^/robots.txt': 'http://repository.steve.org.uk/robots.txt',
             '^/favicon.ico': 'http://repository.steve.org.uk/favicon.ico',
         },
 
@@ -108,8 +105,7 @@ exports.options = {
     /**
      * The static host: proxy all requests to the localhost:1018 server.
      */
-    'repository.steve.org.uk':
-    {
+    'repository.steve.org.uk': {
         'port': '1018',
         'host': 'localhost',
     },
@@ -124,4 +120,4 @@ exports.port = 8080
 /**
  * The addresses we will listen upon.
  */
-exports.bind = new Array( "127.0.0.1", "::1" )
+exports.bind = new Array("127.0.0.1", "::1")

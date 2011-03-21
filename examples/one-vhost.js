@@ -1,4 +1,3 @@
-
 /**
  *  This is an example configuration for a reverse proxy which listens
  * upon:
@@ -25,8 +24,7 @@ exports.options = {
     /**
      * The virtual host we're responding to.
      */
-    'example.com':
-    {
+    'example.com': {
         /**
          * The host and port to which we forward the requests.
          */
@@ -36,16 +34,12 @@ exports.options = {
 
 };
 
-
-
 /**
  * The port we listen upon.
  */
 exports.port = 80
 
-
 /**
  * The addresses we will listen upon.
  */
-exports.bind = new Array( "192.168.1.100",
-                          "127.0.0.1" )
+exports.bind = new Array("192.168.1.100", "127.0.0.1")
