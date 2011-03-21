@@ -43,14 +43,11 @@
 var http = require('http');
 var path = require('path');
 
-
-
 /**
  * Are the command line flags --dump or --debug in play?
  */
 var g_debug = false;
 var g_dump = false;
-
 
 /**
  * Our global re-write rules.
@@ -73,11 +70,6 @@ var re_Rewrites = {};
  */
 var re_Hosts = {};
 
-
-
-
-
-
 /**
  *
  * This is the start of our HTTP handler, which will respond to incoming
@@ -93,14 +85,12 @@ var handler = function(req, res) {
     var vhost = req.headers.host ? req.headers.host : '';
     vhost = vhost.toLowerCase();
 
-
     /**
      * Log, if being verbose.
      */
     if (g_debug) {
         console.log("Request for " + vhost + req.url + " from " + req.connection.remoteAddress);
     }
-
 
     /**
      * This is thttpd specific, but it seems that requests with two
@@ -111,7 +101,6 @@ var handler = function(req, res) {
         req.url = req.url.substr(1);
     }
 
-
     /**
      * If there is a port in the vhost-name then we'll drop it.
      */
@@ -120,20 +109,17 @@ var handler = function(req, res) {
         vhost = vhost.substr(0, port);
     }
 
-
     /**
      * Save away the original submitted Host: header, this will be passed
      * to any functional hooks which might be present for this virtual host.
      */
     var orig_vhost = vhost;
 
-
     /**
      * The entry of rules/functions/host/port we're going to lookup
      * for this incoming request.
      */
     var ent;
-
 
     /**
      * Find the virtual host, from our external table.
@@ -148,7 +134,6 @@ var handler = function(req, res) {
             vhost = host;
         }
     }
-
 
     /**
      * If the table lookup succeeded then we have a request for a virtual
@@ -195,7 +180,6 @@ var handler = function(req, res) {
                         }
                     }
 
-
                     /**
                      * If the destination rule begins with
                      * "http" we will instead issue a redirect.
@@ -217,7 +201,6 @@ var handler = function(req, res) {
             })
         }
 
-
         /**
          * See if we have any modification functions to invoke.
          *
@@ -238,7 +221,7 @@ var handler = function(req, res) {
                 /* The name of the function is a regexp against the path. */
                 if (req.url.match(fun)) {
 
-                    if ( global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res) ) {
+                    if (global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res)) {
                         over = true;
                     }
                 }
@@ -253,7 +236,6 @@ var handler = function(req, res) {
             return;
         }
 
-
         /**
          * OK at this point we have either:
          *
@@ -267,7 +249,6 @@ var handler = function(req, res) {
         port = global.options[vhost]['port'];
         host = global.options[vhost]['host'] || "127.0.0.1";
 
-
         /**
          * If that lookup fails we're out of luck.
          */
@@ -278,7 +259,6 @@ var handler = function(req, res) {
             res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
             return;
         }
-
 
         /**
          * Otherwise we need to create the proxy-magic.
@@ -296,7 +276,6 @@ var handler = function(req, res) {
             res.end('Back-end unreachable.');
         });
 
-
         /**
          * Append something to the user-agent, and add an
          * X-Forwarded-For: header.
@@ -307,7 +286,6 @@ var handler = function(req, res) {
         }
         req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
         req.headers["User-Agent"] = agent + "node-reverse-proxy.js";
-
 
         /**
          * Create the proxier
@@ -322,10 +300,8 @@ var handler = function(req, res) {
              * Otherwise defualt to "close".
              */
             if (proxy_response.headers.connection) {
-                if (req.headers.connection)
-                    proxy_response.headers.connection = req.headers.connection;
-                else
-                    proxy_response.headers.connection = 'close';
+                if (req.headers.connection) proxy_response.headers.connection = req.headers.connection;
+                else proxy_response.headers.connection = 'close';
             }
 
             res.writeHead(proxy_response.statusCode, proxy_response.headers);
@@ -349,7 +325,6 @@ var handler = function(req, res) {
 
         });
 
-
         /**
          * Wire it all up, old-school.
          */
@@ -360,7 +335,6 @@ var handler = function(req, res) {
         req.addListener('end', function() {
             proxy_request.end();
         });
-
 
         /**
          * Our work here is done.
@@ -378,10 +352,6 @@ var handler = function(req, res) {
     res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
 };
 
-
-
-
-
 /**
  * Last ditch error-recovery
  */
@@ -389,15 +359,10 @@ process.on('uncaughtException', function(err) {
     console.log("ERROR:" + err);
 });
 
-
-
-
 /**
  * Default configuration file
  */
 var file = "./rewrites.js";
-
-
 
 /**
  * Simple command-line parsing.
@@ -433,8 +398,6 @@ process.argv.forEach(function(arg) {
     }
 })
 
-
-
 /**
  * Ensure we weren't left dangling.
  */
@@ -442,9 +405,6 @@ if (inFile || inPort) {
     console.log("Missing argument!");
     process.exit(1);
 }
-
-
-
 
 /**
  * See if our named configuration file exists.
@@ -456,8 +416,6 @@ if (path.existsSync(file)) {
     process.exit(1);
 }
 
-
-
 /**
  * Are we just dumping the configuration hash?
  */
@@ -467,7 +425,6 @@ if (g_dump) {
     });
     process.exit(0);
 }
-
 
 /**
  * Pre-compile each rewrite rule regular expression, and each vhost
@@ -494,24 +451,16 @@ Object.keys(global.options).forEach(function(vhost) {
     }
 })
 
-
-
-
 /**
  * Launch our starting options.
  */
 console.log("node-reverse-proxy.js starting, reading from " + file + "\n");
-
-
-
 
 /**
  * Port is either that from the command-line parser, or from the
  * configuration file.
  */
 var port = port || global.port;
-
-
 
 /**
  * Bind to each requested address, as defined in the configuration file.
@@ -520,8 +469,6 @@ for (val in global.bind) {
     console.log("Binding to " + global.bind[val] + ":" + port);
     http.createServer().addListener("request", handler).listen(port, global.bind[val]);
 }
-
-
 
 /**
  * Now we're cooking on gas.
