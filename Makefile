@@ -25,4 +25,4 @@ tidy:
 #  Steve's personal deployer.  Nice.
 #
 deploy:
-	rsync -vazr *.js root@steve.org.uk:/root/
+	rsync -vazr *.js root@steve.org.uk://etc/service/node-reverse-proxy/
