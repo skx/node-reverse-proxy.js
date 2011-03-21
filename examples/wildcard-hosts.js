@@ -54,68 +54,59 @@ exports.options = {
          * Again the key here "/" is a regular expression; albeit a permissive
          * one.
          *
+         */
         'functions': {
+            '/': (function(orig_host, vhost, req, res) {
 
-            '/': (function(orig_host, vhost,req,res) {
-
-            /**
-             * Get the path requested.
-             */
-                var oPath     = req.url;
-
-            /**
-             * The regular expression to pull out the hostname of
-             * the project.
-             */
-                var hostRE    = new RegExp("^([^.]+)\.repository\.steve.\org\.uk" );
+                /**
+                 * Get the requested hostname.
+                 */
+                var hostRE = new RegExp("^([^.]+)\.repository\.steve.\org\.uk");
                 var hostMatch = hostRE.exec(orig_host)
 
-            /**
-              *  If that worked ..
-              */
-                if ( hostMatch != null )
-                {
+                if (hostMatch != null) {
 
                     /**
-                     * If the request is for the root of the project
-                     * then just redirect to:
-                     *
-                     *   /hgwebdir.cgi/$project
+                     * If that worked and we update the path
                      */
-                    if ( req.url == "/" )
-                    {
-                        req.url = "/cgi-bin/hgwebdir.cgi/" + hostMatch[1];
-                    }
-                    else
-                    {
-                        /**
-                         * Otherwise tack on the request
-                         *
-                         * This allows:
-                         *
-                         * http://foo.r.s.o.u/file/tip/path
-                         *
-                         * To redirect to
-                         *
-                         * /cgi-bin/hgwebdir.cgi/fooo/file/tip/path
-                         */
-                        req.url = "/cgi-bin/hgwebdir.cgi/" + hostMatch[1] + "/" + req.url
-                    }
+                    req.url = "/cgi-bin/hgwebdir.cgi/" + hostMatch[1] + req.url
 
                     /**
-                     * Now that we've updated the path we'll redirect
-                     * to the staticly defined server, which will receive
-                     * the updated request and hostname.
+                     * And rewrite to the static host
                      */
-                    res.writeHead(301, { 'Location': "http://repository.steve.org.uk" + req.url } );
+                    res.writeHead(301, {
+                        'Location': "http://repository.steve.org.uk" + req.url
+                    });
                     res.end();
+
+                    /**
+                     * We return here because we've handled the result,
+                     * (issuing a redirect) and that means that we don't
+                     * need the server to proxy the request for us.
+                     */
+                    return true;
+
                 }
+
+                /**
+                 * If we reach here then we haven't carried out our
+                 * mission, and the request should be proxied.
+                 *
+                 * However that isn't actually possible - we'll
+                 * not be invoked if our hostname doesn't match the
+                 * (simplified) regexp: *.repository.steve.org.uk, and
+                 * similarly every URL request is going to match "/".
+                 *
+                 * So this is a "can't happen" situation.
+                 *
+                 */
+                return false;
             })
         }
     },
 
     /**
-     * The static host.
+     * The static host: proxy all requests to the localhost:1018 server.
      */
     'repository.steve.org.uk':
     {
