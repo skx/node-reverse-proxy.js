@@ -55,13 +55,12 @@ exports.options = {
          * to redirect a user to the root of the other site we could
          * use this:
          *
+         * rules: {
+         *   '^/': 'http://example.com/'
+         * },
          *
-        rules: {
-            '^/': 'http://example.com/'
-        },
-
-        *
-        */
+         *
+         */
     },
 
 };
