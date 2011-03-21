@@ -46,9 +46,11 @@ var path = require('path');
 
 
 /**
- * Debug?
+ * Are the command line flags --dump or --debug in play?
  */
 var g_debug = false;
+var g_dump = false;
+
 
 /**
  * Our global re-write rules.
@@ -419,6 +421,9 @@ process.argv.forEach(function(arg) {
     if (arg.match("-+debug")) {
         g_debug = true;
     }
+    if (arg.match("-+dump")) {
+        g_dump = true;
+    }
     if (arg.match("-+port")) {
         inPort = true;
     }
@@ -449,6 +454,18 @@ if (path.existsSync(file)) {
 } else {
     console.log("Configuration file not found - " + file);
     process.exit(1);
+}
+
+
+
+/**
+ * Are we just dumping the configuration hash?
+ */
+if (g_dump) {
+    Object.keys(global.options).forEach(function(vhost) {
+        console.log("http://" + vhost + "/");
+    });
+    process.exit(0);
 }
 
 
