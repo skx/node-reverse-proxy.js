@@ -1,4 +1,3 @@
-#!/opt/node/bin/node
 
 /**
  * A Reverse-HTTP proxy written using Node.js
