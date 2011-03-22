@@ -1,0 +1,12 @@
+  These are simple tests which I run against my own webserver.
+
+  They are designed to do two things:
+
+    * Test that HTTP fetches of particular hosts receive contain
+      some expected & static text.
+
+    * Test that requests to particular pages will generate a 301
+      HTTP-Redirection response to a particular virtual host.
+
+Steve
+-- 

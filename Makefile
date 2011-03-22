@@ -13,6 +13,12 @@ clean:
 
 
 #
+#  If we have test cases, run them
+#
+test:
+	[ -d ./tests/ ] && run-parts tests/ --exit-on-error
+
+#
 #  Indent our code consistently.
 #
 tidy:
