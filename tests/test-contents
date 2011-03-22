@@ -137,7 +137,7 @@ http://static.steve.org.uk/        "javascript libraries"
 
 
 #
-#  IPv4 & IPv6
+#  IPv4
 #
 http://ipv4.steve.org.uk/       "ipv4 test host"
-http://ipv6.steve.org.uk/       "ipv6 test host"
+
