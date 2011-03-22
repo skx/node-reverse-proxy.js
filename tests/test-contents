@@ -141,3 +141,13 @@ http://static.steve.org.uk/        "javascript libraries"
 #
 http://ipv4.steve.org.uk/       "ipv4 test host"
 
+
+#
+#  Packages
+#
+http://packages.steve.org.uk   "for lenny"
+
+#
+#  Picshare
+#
+http://picshare.steve.org.uk   "about"
