@@ -422,6 +422,25 @@ if (path.existsSync(file)) {
 if (g_dump) {
     Object.keys(global.options).forEach(function(vhost) {
         console.log("http://" + vhost + "/");
+
+        /**
+         * Dump host + port if present.
+         */
+        port = global.options[vhost]['port'] || "";
+        host = global.options[vhost]['host'] || "127.0.0.1";
+
+        var rules = global.options[vhost]['rules'];
+
+        if (rules) {
+            Object.keys(rules).forEach(function(rule) {
+                console.log("\tRewriting " + rule + " to " + rules[rule]);
+            })
+        }
+
+        if (host.length && port.length) {
+            console.log("\tproxying to " + host + ":" + port);
+        }
+
     });
     process.exit(0);
 }
