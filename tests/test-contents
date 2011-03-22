@@ -124,3 +124,20 @@ http://repository.steve.org.uk/cgi-bin/hgwebdir.cgi/itag/  "ChangeLog"
 http://stolen-souls.com/               "Amateur"
 http://www.stolen-souls.com/           "Amateur"
 http://www.stolen-souls.com/links/     "modelmayhem"
+
+#
+#  TODO
+#
+http://todo.steve.org.uk/            "/account/create"
+
+#
+#  Static
+#
+http://static.steve.org.uk/        "javascript libraries"
+
+
+#
+#  IPv4 & IPv6
+#
+http://ipv4.steve.org.uk/       "ipv4 test host"
+http://ipv6.steve.org.uk/       "ipv6 test host"
