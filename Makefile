@@ -16,7 +16,7 @@ clean:
 #  If we have test cases, run them
 #
 test:
-	[ -d ./tests/ ] && run-parts tests/ --exit-on-error
+	@./tests/run-tests
 
 #
 #  Indent our code consistently.
@@ -25,6 +25,7 @@ tidy:
 	@[ -x /usr/bin/js_beautify ] || echo "apt-get install libjavascript-beautifier-perl"
 	@[ -x /usr/bin/js_beautify ] && js_beautify -p -o rewrites.js
 	@[ -x /usr/bin/js_beautify ] && js_beautify -p -o node-reverse-proxy.js
+	@[ -x /usr/bin/perltidy ]    && perltidy ./tests/run-tests
 
 
 #

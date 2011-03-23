@@ -1,0 +1,348 @@
+#!/usr/bin/perl -w
+#
+#  Simple script to request a lot of URLs and compare any received
+# HTTP-Redirection requests against that we expected.
+#
+#  This is used to test Steve's personal server, but might be useful
+# for others.
+#
+# Steve
+# --
+#
+
+
+
+use strict;
+use warnings;
+
+use LWP::UserAgent;
+
+#
+#  Minimal --verbose handler.
+#
+my $verbose = 0;
+foreach my $arg (@ARGV)
+{
+    $verbose = 1 if ( $arg =~ /verbose/ );
+}
+
+
+
+#
+#  Failure count + Test count
+#
+my $fail  = 0;
+my $count = 0;
+
+
+#
+#  Process each line of our embedded data.
+#
+while ( my $line = <DATA> )
+{
+
+    #
+    # Remove newline
+    #
+    chomp($line);
+
+    #
+    #  Skip empty/comment lines.
+    #
+    next if ( !length($line) || $line =~ /^#/ );
+
+    #
+    #  Otherwise process each line
+    #
+    if ( $line =~ /([^ \t]+)\s+([^ \t]+)\s+(.*)$/ )
+    {
+        my $url      = $1;
+        my $type     = $2;
+        my $expected = $3;
+
+        #
+        #  Test a given URL redirects to another URL.
+        #
+        if ( $type eq "redirect" )
+        {
+            my $from = $1;
+            my $to   = $3;
+
+            $verbose && print "Testing redirect of '$from' ";
+
+            my $response = getRedirect($from);
+
+            if ( defined $response )
+            {
+                if ( $response ne $to )
+                {
+                    $verbose && print " FAIL\n";
+                    print "ERR - $from redirected to $to not $response\n";
+                    $fail += 1;
+                }
+                else
+                {
+                    $verbose && print " OK\n";
+                }
+
+            }
+            else
+            {
+                $fail += 1;
+                print "ERR - Failed to find redirection header for $from\n";
+            }
+
+            $count += 1;
+        }
+
+        #
+        #  Test a given URL contains the given text.
+        #
+        elsif ( $type eq "content" )
+        {
+
+            #
+            #  Remove quotes
+            #
+            $expected =~ s/^"|"$//g;
+
+            $verbose && print "Searching for '$expected' in $url ";
+
+            #
+            #  Fetch the content of the URL.
+            #
+            my $text = getContent($url);
+
+            #
+            #  If that worked
+            #
+            if ( defined $text )
+            {
+
+                #
+                # But the text doesn't contain the magic we want..
+                #
+                if ( $text !~ /\Q$expected\E/i )
+                {
+                    $verbose && print "FAIL\n";
+                    $fail += 1;
+                    print "ERR $url doesn't contain '$expected'\n";
+                }
+                else
+                {
+                    $verbose && print "OK\n";
+                }
+
+            }
+            else
+            {
+                $fail += 1;
+                print "ERR - Failed to fetch $url\n";
+            }
+
+            $count += 1;
+
+        }
+        else
+        {
+            die "Unknown test type: $line\n";
+        }
+    }
+    else
+    {
+        die "Ignored line : $line\n";
+    }
+}
+
+
+#
+#  Show output
+#
+my $ok = $count - $fail;
+
+print "Successful tests: [$ok/$count]\n";
+print "Failed tests    : [$fail/$count]\n";
+
+exit $fail;
+
+
+
+=begin doc
+
+Send a HTTP request for a given URL - if any "Location", or redirection,
+header is received in response return it.
+
+Return "undef" if the URL fetch failed, or there is no redirection.
+
+=end doc
+
+=cut
+
+sub getRedirect
+{
+    my ($url) = (@_);
+
+    #
+    #  Create a user-agent, ensuring we don't follow redirects.
+    #
+    my $agent = LWP::UserAgent->new( max_redirect => 0 );
+
+    #
+    #  Get the response
+    #
+    my $response = $agent->get($url);
+    return undef if ( !defined($response) );
+
+    #
+    #  Find the headers
+    #
+    my $headers = $response->headers();
+    return undef if ( !defined($headers) );
+
+    #
+    #  Return the location from the headers, if found.
+    #
+    return ( $headers->{ 'location' } || undef );
+
+}
+
+
+
+=begin doc
+
+Return the text-content of the given URL.
+
+=end doc
+
+=cut
+
+sub getContent
+{
+    my ($url) = (@_);
+
+    #
+    #  Create a user-agent.
+    #
+    my $agent = LWP::UserAgent->new( max_redirect => 1 );
+
+    #
+    #  Get the response
+    #
+    my $response = $agent->get($url);
+    return undef if ( !defined($response) );
+
+    #
+    # Get the text
+    #
+    if ( $response->is_success )
+    {
+        return ( $response->decoded_content() );
+    }
+    else
+    {
+        return undef;
+    }
+
+}
+
+
+
+
+#
+#  Now follows the test data.
+#
+#  Format is one of:
+#
+#   $url redirect $url
+#   $url content  "text to search for"
+#
+__DATA__
+
+#
+#  Blogspam.net
+#
+http://api.blogspam.net/  redirect http://blogspam.net/api
+http://test.blogspam.net/ redirect http://blogspam.net/
+http://www.blogspam.net/  redirect http://blogspam.net/
+http://www.blogspam.net/  content  "Detection for Blog"
+
+#
+#  Edinburgh
+#
+http://www.edinburgh-portraits.com/ redirect http://edinburgh-portraits.com/
+http://edinburgh-portraits.com/     content  "Edinburgh Portrait Photography"
+
+
+#
+#  KVM Hosting
+#
+http://www.kvm-hosting.com/ redirect http://kvm-hosting.org/
+http://www.kvm-hosting.org/ redirect http://kvm-hosting.org/
+http://www.kvm-hosting.net/ redirect http://kvm-hosting.org/
+http://kvm-hosting.com/     redirect http://kvm-hosting.org/
+http://kvm-hosting.net/     redirect http://kvm-hosting.org/
+http://kvm-hosting.org/     content  "About KVM Hosting"
+
+#
+#  Mail-Scanning
+#
+http://mail-scanning.com/      redirect http://book.mail-scanning.com/
+http://www.mail-scanning.com/  redirect http://book.mail-scanning.com/
+http://book.mail-scanning.com/ content  "Steve Kemp"
+
+
+#
+#  Stored-Online
+#
+http://www.stored-online.com/     redirect http://stored-online.com/
+
+
+#
+#  Stolen-Souls
+#
+http://stolen-souls.com/           content  "Amateur"
+http://www.stolen-souls.com/       content  "Amateur"
+http://www.stolen-souls.com/       redirect http://stolen-souls.com/
+http://www.stolen-souls.com/links/ content  "modelmayhem"
+
+
+#
+#  Steve
+#
+http://steve.org.uk/               redirect http://www.steve.org.uk/
+http://ipv4.steve.org.uk/          content  "ipv4 test host"
+http://packages.steve.org.uk/      content  "for lenny"
+http://picshare.steve.org.uk/      content  "about"
+http://static.steve.org.uk/        content  "javascript libraries"
+http://steve.org.uk/               content  "Steve Kemp"
+http://todo.steve.org.uk/          content  "/account/create"
+http://www.steve.org.uk/           content  "Steve Kemp"
+
+#
+#  Other steve.org.uk hosts.
+#
+http://chronicle.repository.steve.org.uk/ redirect http://repository.steve.org.uk/cgi-bin/hgwebdir.cgi/chronicle/
+http://mybin.repository.steve.org.uk/file redirect http://repository.steve.org.uk/cgi-bin/hgwebdir.cgi/mybin/file
+http://itag.repository.steve.org.uk/      redirect http://repository.steve.org.uk/cgi-bin/hgwebdir.cgi/itag/
+http://foof.repository.steve.org.uk/      redirect http://repository.steve.org.uk/cgi-bin/hgwebdir.cgi/foof/
+http://itag.repository.steve.org.uk                       content  "ChangeLog"
+http://repository.steve.org.uk/cgi-bin/hgwebdir.cgi/itag/ content  "ChangeLog"
+
+
+#
+#  Xen-Hosting
+#
+http://xen-hosting.org/      redirect http://kvm-hosting.org/
+http://www.xen-hosting.org/  redirect http://kvm-hosting.org/
+http://xen-hosting.net/      redirect http://kvm-hosting.org/
+http://www.xen-hosting.net/  redirect http://kvm-hosting.org/
+
+
+#
+#  URL mogrification
+#
+http://www.steve.org.uk/      content "Steve Kemp"
+http://www.steve.org.uk//     content "Steve Kemp"
+http://www.steve.org.uk///    content "Steve Kemp"
+http://www.steve.org.uk////   content "Steve Kemp"
+http://www.steve.org.uk/////  content "Steve Kemp"
