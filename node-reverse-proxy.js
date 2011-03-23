@@ -305,6 +305,11 @@ var handler = function(req, res) {
                     /**
                      * If the rule matches we have a hit; we need
                      * to rewrite.
+                     *
+                     * Note: We continue to go through this loop allowing
+                     * further rewrites to occur.  That seems more sensible
+                     * to me than to stop at the first hit, although doing that
+                     * would be a speed optimisation for hosts with many rules.
                      */
                     var newURL = rules[rule];
 
@@ -538,7 +543,7 @@ console.log("node-reverse-proxy.js v" + VERSION + "\n");
  * Port is either that from the command-line parser, or from the
  * configuration file.
  */
-var port = cmdline['port'] ||  global.port;
+var port = cmdline['port'] || global.port;
 
 /**
  * Bind to each requested address, as defined in the configuration file.
