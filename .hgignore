@@ -1,0 +1,7 @@
+(^|/)CVS($|/)
+(^|/)\.hg($|/)
+(^|/)\.hgtags($|/)
+
+syntax: glob
+./.version
+./rewrites.js
