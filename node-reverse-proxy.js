@@ -27,6 +27,9 @@
  *  This whole file is a program, and it is expected you'll invoke
  * it with the path to a configuration file, via "--config /path/foo.js"
  *
+ *  (Several example configuration files are provided with the source
+ * code distribution; see ./examples/.)
+ *
  *
  * Author
  * -----
@@ -49,6 +52,7 @@ var path = require('path');
 var cmdline = {
     'debug': false,
     'dump': false,
+    'port': 8080,
     'config': "./rewrites.js"
 };
 
@@ -520,7 +524,7 @@ console.log("node-reverse-proxy.js starting, reading from " + cmdline['config'] 
  * Port is either that from the command-line parser, or from the
  * configuration file.
  */
-var port = port || global.port;
+var port = cmdline['port'] || global.port;
 
 /**
  * Bind to each requested address, as defined in the configuration file.
