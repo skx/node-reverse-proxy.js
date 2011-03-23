@@ -300,10 +300,11 @@ http://www.stored-online.com/     redirect http://stored-online.com/
 #
 #  Stolen-Souls
 #
-http://stolen-souls.com/           content  "Amateur"
-http://www.stolen-souls.com/       content  "Amateur"
-http://www.stolen-souls.com/       redirect http://stolen-souls.com/
-http://www.stolen-souls.com/links/ content  "modelmayhem"
+http://stolen-souls.com/                content  "Amateur"
+http://www.stolen-souls.com/            content  "Amateur"
+http://www.stolen-souls.com/            redirect http://stolen-souls.com/
+http://www.stolen-souls.com/links/      content  "modelmayhem"
+http://stolen-souls.com/people/candid/  redirect http://stolen-souls.com/candid/
 
 
 #
