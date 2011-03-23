@@ -56,6 +56,8 @@ var cmdline = {
     'config': "./rewrites.js"
 };
 
+var VERSION = "0.2";
+
 /**
  * Our global re-write rules.
  *
@@ -102,7 +104,16 @@ function parseCommandLine() {
             inPort = true;
         }
         if (arg.match("-+help")) {
-            console.log("node-reverse-proxy [--help|--config file|--dump|--debug|--port N]");
+            console.log("node-reverse-proxy.js - " + VERSION + " - <http://steve.org.uk/Software/node-reverse-proxy/>");
+            console.log("\nUsage:")
+            console.log(" node-reverse-proxy [options]")
+            console.log(" ")
+            console.log(" --help    Show this help.");
+            console.log(" --config  Use the specified config file, not ./rewrites.js.");
+            console.log(" --dump    Dump the configuration file, and exit.");
+            console.log(" --debug   Show debugging information whilst running.");
+            console.log(" --port    Override the port to listen upon from the config file.");
+            console.log("");
             process.exit(1);
         }
     })
@@ -123,6 +134,10 @@ function parseCommandLine() {
  *
  */
 function loadConfigFile(filename) {
+
+    if (cmdline["debug"]) {
+        console.log("Reading configuration file " + filename);
+    }
 
     /**
      * See if our named configuration file exists.
@@ -518,7 +533,7 @@ if (cmdline['dump']) {
 /**
  * Launch and display our starting options.
  */
-console.log("node-reverse-proxy.js starting, reading from " + cmdline['config'] + "\n");
+console.log("node-reverse-proxy.js v" + VERSION + "\n");
 
 /**
  * Port is either that from the command-line parser, or from the
@@ -537,4 +552,4 @@ for (val in global.bind) {
 /**
  * Now we're cooking on gas.
  */
-console.log("\nAwaiting orders ...");
+console.log("\nAwaiting requests ...");
