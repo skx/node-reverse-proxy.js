@@ -38,37 +38,164 @@
  */
 
 /**
- * Load the Node.js HTTP library.
+ * Load the Node.js HTTP & PATH libraries.
  */
 var http = require('http');
 var path = require('path');
 
 /**
- * Are the command line flags --dump or --debug in play?
+ * The defaults for our command line parser
  */
-var g_debug = false;
-var g_dump = false;
+var cmdline = {
+    'debug': false,
+    'dump': false,
+    'config': "./rewrites.js"
+};
 
 /**
  * Our global re-write rules.
  *
- * This will be populated after the command-line parsing at the foot
- * of this script.
+ * This will be populated after the command-line parsing, and configuration
+ * file reading.
+ *
+ * NOTE:  This is where *all* the vhosts, their rewrite/function
+ * definitions are stored.
+ *
+ * NOTE #2:  We pre-compile all regexps.  See "loadConfigFile" for details
+ * and specifically note the use of the 'compiled' + 'rw_compiled' - the
+ * former for virtual host regexps and the latter for ReWrite regexps.
+ *
  */
 var global;
 
 /**
- * Global cache of pre-compiled regular expression objects for path-based
- * rewrites.
- *
- * [We cache based upon the text form of the regexp as this is vhost-agnostic.]
+ * Command line parser.
  */
-var re_Rewrites = {};
+function parseCommandLine() {
+    var inFile = false;
+    var inPort = false;
+
+    process.argv.forEach(function(arg) {
+
+        if (inFile) {
+            cmdline['config'] = arg;
+            inFile = false;
+        }
+        if (inPort) {
+            cmdline['port'] = arg;
+            inPort = false;
+        }
+        if (arg.match("-+config")) {
+            inFile = true;
+        }
+        if (arg.match("-+debug")) {
+            cmdline['debug'] = true;
+        }
+        if (arg.match("-+dump")) {
+            cmdline['dump'] = true;
+        }
+        if (arg.match("-+port")) {
+            inPort = true;
+        }
+        if (arg.match("-+help")) {
+            console.log("node-reverse-proxy [--help|--config file|--dump|--debug|--port N]");
+            process.exit(1);
+        }
+    })
+
+    /**
+     * Ensure we weren't left dangling.
+     */
+    if (inFile || inPort) {
+        console.log("Missing argument!");
+        process.exit(1);
+    }
+}
 
 /**
- * Global cache of pre-compiled regular expressions for our known hostnames.
+ * Load the specified configuration file, aborting if it isn't present.
+ *
+ * Pre-compile the virtual host regexps & rewrite rules for speed.
+ *
  */
-var re_Hosts = {};
+function loadConfigFile(filename) {
+
+    /**
+     * See if our named configuration file exists.
+     */
+    if (path.existsSync(filename)) {
+        global = require(filename);
+    } else {
+        console.log("Configuration file not found - " + filename);
+        process.exit(1);
+    }
+
+    /**
+     * Pre-compile each rewrite rule regular expression, and each vhost
+     * regexp.
+     *
+     * Doing this offers a significant speedup.
+     *
+     */
+    Object.keys(global.options).forEach(function(vhost) {
+
+        /**
+         * Virtual Hostname regexp.
+         */
+        global.options[vhost]['compiled'] = new RegExp("^" + vhost + "$");
+
+        /**
+         * Now process each existing rewrite rule for that vhost.
+         */
+        rules = global.options[vhost]['rules'];
+
+        if (rules) {
+
+            /**
+             * Create a sub-hash
+             */
+            global.options[vhost]['rw_compiled'] = {}
+
+            Object.keys(rules).forEach(function(rule) {
+
+                /**
+                 * Damn that is a lot of nesting...
+                 */
+                global.options[vhost]['rw_compiled'][rule] = new RegExp(rule);
+            })
+        }
+    })
+}
+
+/**
+ * Dump the virtual hosts we know about to the console,
+ * along with their proxied locations and any rewrite rules
+ * which might be present.
+ */
+function dumpOptions() {
+    Object.keys(global.options).forEach(function(vhost) {
+        console.log("http://" + vhost + "/");
+
+        /**
+         * Dump host + port if present.
+         */
+        port = global.options[vhost]['port'] || "";
+        host = global.options[vhost]['host'] || "127.0.0.1";
+
+        var rules = global.options[vhost]['rules'];
+
+        if (rules) {
+            Object.keys(rules).forEach(function(rule) {
+                console.log("\tRewriting " + rule + " to " + rules[rule]);
+            })
+        }
+
+        if (host.length && port.length) {
+            console.log("\tproxying to " + host + ":" + port);
+        }
+
+    });
+}
 
 /**
  *
@@ -88,7 +215,7 @@ var handler = function(req, res) {
     /**
      * Log, if being verbose.
      */
-    if (g_debug) {
+    if (cmdline['debug']) {
         console.log("Request for " + vhost + req.url + " from " + req.connection.remoteAddress);
     }
 
@@ -128,7 +255,7 @@ var handler = function(req, res) {
      * anchored ones.
      */
     for (var host in global.options) {
-        var hostRE = re_Hosts[host];
+        var hostRE = global.options[host]['compiled'];
         if (hostRE.exec(vhost)) {
             ent = global.options[host];
             vhost = host;
@@ -152,7 +279,7 @@ var handler = function(req, res) {
                 /**
                  * Find the pre-compiled regexp for this rule - execute it.
                  */
-                var re = re_Rewrites[rule];
+                var re = global.options[vhost]['rw_compiled'][rule];
                 var match = re.exec(req.url);
 
                 if (match) {
@@ -357,123 +484,37 @@ var handler = function(req, res) {
  */
 process.on('uncaughtException', function(err) {
     console.log("ERROR:" + err);
+    console.log(err.stack);
 });
 
 /**
- * Default configuration file
- */
-var file = "./rewrites.js";
+ **
+ **  Start of running code.
+ **
+ **/
 
 /**
- * Simple command-line parsing.
+ * Parse any command line options which might be present.
  */
-var inFile = false;
-var inPort = false;
-
-process.argv.forEach(function(arg) {
-
-    if (inFile) {
-        file = arg;
-        inFile = false;
-    }
-    if (inPort) {
-        port = arg;
-        inPort = false;
-    }
-    if (arg.match("-+config")) {
-        inFile = true;
-    }
-    if (arg.match("-+debug")) {
-        g_debug = true;
-    }
-    if (arg.match("-+dump")) {
-        g_dump = true;
-    }
-    if (arg.match("-+port")) {
-        inPort = true;
-    }
-    if (arg.match("-+help")) {
-        console.log("node-reverse-proxy [--help|--config file|--port N]");
-        process.exit(1);
-    }
-})
+parseCommandLine();
 
 /**
- * Ensure we weren't left dangling.
+ * Load our configuration file.
  */
-if (inFile || inPort) {
-    console.log("Missing argument!");
-    process.exit(1);
-}
+loadConfigFile(cmdline['config']);
 
 /**
- * See if our named configuration file exists.
+ * If we're just to dump then do so.
  */
-if (path.existsSync(file)) {
-    global = require(file);
-} else {
-    console.log("Configuration file not found - " + file);
-    process.exit(1);
-}
-
-/**
- * Are we just dumping the configuration hash?
- */
-if (g_dump) {
-    Object.keys(global.options).forEach(function(vhost) {
-        console.log("http://" + vhost + "/");
-
-        /**
-         * Dump host + port if present.
-         */
-        port = global.options[vhost]['port'] || "";
-        host = global.options[vhost]['host'] || "127.0.0.1";
-
-        var rules = global.options[vhost]['rules'];
-
-        if (rules) {
-            Object.keys(rules).forEach(function(rule) {
-                console.log("\tRewriting " + rule + " to " + rules[rule]);
-            })
-        }
-
-        if (host.length && port.length) {
-            console.log("\tproxying to " + host + ":" + port);
-        }
-
-    });
+if (cmdline['dump']) {
+    dumpOptions();
     process.exit(0);
 }
 
 /**
- * Pre-compile each rewrite rule regular expression, and each vhost
- * regexp.
- *
- * Doing this offers a significant speedup.
- *
+ * Launch and display our starting options.
  */
-Object.keys(global.options).forEach(function(vhost) {
-
-    /**
-     * Virtual Hostname regexp.
-     */
-    re_Hosts[vhost] = new RegExp("^" + vhost + "$");
-
-    /**
-     * Now process each existing rewrite rule for that vhost.
-     */
-    rules = global.options[vhost]['rules'];
-    if (rules) {
-        Object.keys(rules).forEach(function(rule) {
-            re_Rewrites[rule] = new RegExp(rule);
-        })
-    }
-})
-
-/**
- * Launch our starting options.
- */
-console.log("node-reverse-proxy.js starting, reading from " + file + "\n");
+console.log("node-reverse-proxy.js starting, reading from " + cmdline['config'] + "\n");
 
 /**
  * Port is either that from the command-line parser, or from the
