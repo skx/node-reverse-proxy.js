@@ -1,11 +1,16 @@
-  These are simple tests which I run against my own webserver.
+  This directory contains a simple test script which is designed
+ to test the HTTP-Hosts running upon my personal machine.
 
-  They are designed to do two things:
+  Although they are not useful to others in any real sense they
+ may provide an example of testing availability and functionality
+ which would be useful.
+
+  The test script is designed to test two specific things:
 
     * Test that HTTP fetches of particular hosts receive contain
       some expected & static text.
 
-    * Test that requests to particular pages will generate a 301
+    * Test that requests to particular pages will generate a
       HTTP-Redirection response to a particular virtual host.
 
 Steve
