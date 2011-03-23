@@ -56,7 +56,7 @@ var cmdline = {
     'config': "./rewrites.js"
 };
 
-var VERSION = "0.2";
+var VERSION = "UNRELEASED";
 
 /**
  * Our global re-write rules.
