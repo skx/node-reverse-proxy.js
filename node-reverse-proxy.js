@@ -96,8 +96,8 @@ var handler = function(req, res) {
      * This is thttpd specific, but it seems that requests with two
      * leading "/" characters result in a "400 bad request" response.
      */
-    if (req.url.substr(0, 2) == "//") {
-        console.log("Request for BOGUS URL [http://" + vhost + req.url + "] from " + req.connection.remoteAddress);
+    while (req.url.substr(0, 2) == "//") {
+        console.log("BOGUS URL Requested by " + req.connection.remoteAddress + " - http://" + vhost + req.url);
         req.url = req.url.substr(1);
     }
 
