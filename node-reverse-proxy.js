@@ -539,7 +539,7 @@ console.log("node-reverse-proxy.js v" + VERSION + "\n");
  * Port is either that from the command-line parser, or from the
  * configuration file.
  */
-var port = cmdline['port'] || global.port;
+var port = global.port || cmdline['port'];
 
 /**
  * Bind to each requested address, as defined in the configuration file.
