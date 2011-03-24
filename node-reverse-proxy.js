@@ -238,12 +238,10 @@ var handler = function(req, res) {
     }
 
     /**
-     * This is thttpd specific, but it seems that requests with two
-     * leading "/" characters result in a "400 bad request" response.
+     * If there are any pre-execution filters apply them
      */
-    while (req.url.substr(0, 2) == "//") {
-        console.log("BOGUS URL Requested by " + req.connection.remoteAddress + " - http://" + vhost + req.url);
-        req.url = req.url.substr(1);
+    if ((global.filters) && (global.filters['pre'])) {
+        global.filters['pre'](req, vhost);
     }
 
     /**
@@ -427,18 +425,12 @@ var handler = function(req, res) {
         });
 
         /**
-         * Append something to the user-agent, and add an
-         * X-Forwarded-For: header.
+         * Preserve the original requesting IP address.
          */
-        var agent = ""
-        if (req.headers["user-agent"]) {
-            agent = req.headers["user-agent"] + "; ";
-        }
         req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
-        req.headers["User-Agent"] = agent + "node-reverse-proxy.js";
 
         /**
-         * Create the proxier
+         * Create the proxy object.
          */
         var proxy_request = proxy.request(req.method, req.url, req.headers);
 
@@ -450,10 +442,24 @@ var handler = function(req, res) {
              * Otherwise defualt to "close".
              */
             if (proxy_response.headers.connection) {
-                if (req.headers.connection) proxy_response.headers.connection = req.headers.connection;
-                else proxy_response.headers.connection = 'close';
+                if (req.headers.connection) {
+                    proxy_response.headers.connection = req.headers.connection;
+                }
+                else {
+                    proxy_response.headers.connection = 'close';
+                }
             }
 
+            /**
+             * If there are any post-execution filters apply them
+             */
+            if ((global.filters) && (global.filters['post'])) {
+                global.filters['post'](proxy_response, req, vhost);
+            }
+
+            /**
+             * Send the proxy's initial response back to the client.
+             */
             res.writeHead(proxy_response.statusCode, proxy_response.headers);
 
             /**
@@ -466,6 +472,10 @@ var handler = function(req, res) {
                 return;
             }
 
+            /**
+             * Send results from the proxy server back to the originating
+             * client.
+             */
             proxy_response.addListener('data', function(chunk) {
                 res.write(chunk, 'binary');
             });
