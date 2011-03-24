@@ -9,9 +9,9 @@ Blog Entries:
     http://blog.steve.org.uk/tags/nodejs/
 
 Tested with source-compiled versions of Node.js:
-    Node.js v0.4.1
-    Node.js v0.4.2
     Node.js v0.4.3
+    Node.js v0.4.2
+    Node.js v0.4.1
 ( ./configure --without-ssl --prefix=/opt/node && make && make install )
 
 
