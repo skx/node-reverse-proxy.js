@@ -15,7 +15,25 @@
 use strict;
 use warnings;
 
+#
+#  This is a sleazy hack, which allows for the LWP::UserAgent module
+# to access IPv6 hosts.
+#
+#  Reference:
+#
+#    http://code.activestate.com/lists/perl5-porters/136834/
+#
+BEGIN
+{
+    no warnings 'once';
+    require IO::Socket::INET6;
+    $Net::HTTP::SOCKET_CLASS = 'IO::Socket::INET6';
+}
+
 use LWP::UserAgent;
+
+
+
 
 #
 #  Minimal --verbose handler.
@@ -25,7 +43,6 @@ foreach my $arg (@ARGV)
 {
     $verbose = 1 if ( $arg =~ /verbose/ );
 }
-
 
 
 #
@@ -312,6 +329,7 @@ http://stolen-souls.com/people/candid/  redirect http://stolen-souls.com/candid/
 #
 http://steve.org.uk/               redirect http://www.steve.org.uk/
 http://ipv4.steve.org.uk/          content  "ipv4 test host"
+http://ipv6.steve.org.uk/          content  "ipv6 test host"
 http://packages.steve.org.uk/      content  "for lenny"
 http://picshare.steve.org.uk/      content  "about"
 http://static.steve.org.uk/        content  "javascript libraries"
@@ -357,16 +375,14 @@ http://www.steve.org.uk/////  content "Steve Kemp"
 # will trigger a cease of further rules.  Necessary for some of my more complex
 # virtual hosts.
 #
-#  TODO: Two hosts are missing - removed due to IPv6 failures:
 #
-#    ipv6.steve.org.uk/robots.txt
-#    ipv6.kvm-hosting.org/robots.txt
-#
-http://blogspam.net/robots.txt content ":"
 http://blog.steve.org.uk/robots.txt content ":"
+http://blogspam.net/robots.txt content ":"
 http://book.mail-scanning.com/robots.txt content ":"
 http://edinburgh-portraits.com/robots.txt content ":"
 http://ipv4.steve.org.uk/robots.txt content ":"
+http://ipv6.kvm-hosting.org/robots.txt content ":"
+http://ipv6.steve.org.uk/robots.txt    content ":"
 http://kvm-hosting.com/robots.txt content ":"
 http://kvm-hosting.net/robots.txt content ":"
 http://kvm-hosting.org/robots.txt content ":"
