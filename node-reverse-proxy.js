@@ -290,6 +290,9 @@ var handler = function(req, res) {
         var rules = global.options[vhost]['rules'];
 
         if (rules) {
+
+            var stop = false;
+
             Object.keys(rules).forEach(function(rule) {
 
                 /**
@@ -298,16 +301,28 @@ var handler = function(req, res) {
                 var re = global.options[vhost]['rw_compiled'][rule];
                 var match = re.exec(req.url);
 
-                if (match) {
+                if ((match) && (!stop)) {
 
                     /**
                      * If the rule matches we have a hit; we need
                      * to rewrite.
                      *
-                     * Note: We continue to go through this loop allowing
-                     * further rewrites to occur.  That seems more sensible
-                     * to me than to stop at the first hit, although doing that
-                     * would be a speed optimisation for hosts with many rules.
+                     * Note: We generally continue to go through this loop
+                     * allowing further rewrites to occur.  That seems more
+                     * sensible to me than to stop at the first hit, although
+                     * if you configure a rewrite to occur which ends in
+                     * "-LAST" it will terminate further updates.
+                     *
+                     * e.g:
+                     *
+                     *   '/robots.txt': '/robots.txt-LAST',
+                     *   '/(.*)':       '/show.cgi?path=$1',
+                     *
+                     * That will rewrite all rules to /show.cgi *except*
+                     * for /robots.txt which will match the first rule
+                     * and due to the "-LAST" will terminate further
+                     * matches.
+                     *
                      */
                     var newURL = rules[rule];
 
@@ -329,10 +344,15 @@ var handler = function(req, res) {
                     }
 
                     /**
-                     * If the destination rule begins with
-                     * "http" we will instead issue a redirect.
+                     * If the destination rule begins with "http" we will
+                     * issue a 301 redirect.
                      */
                     if (newURL.match("^http")) {
+
+                        /**
+                         * TODO: -CODE=302 -> Will generate  a 302 redirect
+                         *
+                         */
                         res.writeHead(301, {
                             'Location': newURL
                         });
@@ -340,10 +360,23 @@ var handler = function(req, res) {
                     } else {
 
                         /**
+                         * Should we stop the rewrites?
+                         */
+                        var offset = newURL.indexOf("-LAST");
+                        if (offset > 0) {
+                            /**
+                             * Strip the -LAST suffix
+                             */
+                            newURL = newURL.substr(0, offset);
+                            stop = true;
+                        }
+
+                        /**
                          * Otherwise we'll update the request - on the basis
                          * that we're going to proxy it shortly.
                          */
                         req.url = newURL;
+
                     }
                 }
             })
