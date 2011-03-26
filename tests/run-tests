@@ -293,12 +293,13 @@ http://edinburgh-portraits.com/     content  "Edinburgh Portrait Photography"
 #
 #  KVM Hosting
 #
-http://www.kvm-hosting.com/ redirect http://kvm-hosting.org/
-http://www.kvm-hosting.org/ redirect http://kvm-hosting.org/
-http://www.kvm-hosting.net/ redirect http://kvm-hosting.org/
-http://kvm-hosting.com/     redirect http://kvm-hosting.org/
-http://kvm-hosting.net/     redirect http://kvm-hosting.org/
-http://kvm-hosting.org/     content  "About KVM Hosting"
+http://www.kvm-hosting.com/  redirect http://kvm-hosting.org/
+http://www.kvm-hosting.org/  redirect http://kvm-hosting.org/
+http://www.kvm-hosting.net/  redirect http://kvm-hosting.org/
+http://kvm-hosting.com/      redirect http://kvm-hosting.org/
+http://kvm-hosting.net/      redirect http://kvm-hosting.org/
+http://kvm-hosting.org/      content  "About KVM Hosting"
+http://ipv6.kvm-hosting.org/ content  "About KVM Hosting"
 
 #
 #  Mail-Scanning
