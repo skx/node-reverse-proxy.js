@@ -347,3 +347,50 @@ http://www.steve.org.uk//     content "Steve Kemp"
 http://www.steve.org.uk///    content "Steve Kemp"
 http://www.steve.org.uk////   content "Steve Kemp"
 http://www.steve.org.uk/////  content "Steve Kemp"
+
+
+
+#
+#  /robots.txt
+#
+#  These tests were added to test that the "-LAST" suffix on a rewrite-rule
+# will trigger a cease of further rules.  Necessary for some of my more complex
+# virtual hosts.
+#
+#  TODO: Two hosts are missing - removed due to IPv6 failures:
+#
+#    ipv6.steve.org.uk/robots.txt
+#    ipv6.kvm-hosting.org/robots.txt
+#
+http://blogspam.net/robots.txt content ":"
+http://blog.steve.org.uk/robots.txt content ":"
+http://book.mail-scanning.com/robots.txt content ":"
+http://edinburgh-portraits.com/robots.txt content ":"
+http://ipv4.steve.org.uk/robots.txt content ":"
+http://kvm-hosting.com/robots.txt content ":"
+http://kvm-hosting.net/robots.txt content ":"
+http://kvm-hosting.org/robots.txt content ":"
+http://mail-scanning.com/robots.txt content ":"
+http://openid.steve.org.uk/robots.txt content ":"
+http://packages.steve.org.uk/robots.txt content ":"
+http://picshare.steve.org.uk/robots.txt content ":"
+http://repository.steve.org.uk/robots.txt content ":"
+http://static.steve.org.uk/robots.txt content ":"
+http://steve.org.uk/robots.txt content ":"
+http://stolen-souls.com/robots.txt content ":"
+http://stored-online.com/robots.txt content ":"
+http://test.blogspam.net/robots.txt content ":"
+http://todo.steve.org.uk/robots.txt content ":"
+http://www.blogspam.net/robots.txt content ":"
+http://www.edinburgh-portraits.com/robots.txt content ":"
+http://www.kvm-hosting.com/robots.txt content ":"
+http://www.kvm-hosting.net/robots.txt content ":"
+http://www.kvm-hosting.org/robots.txt content ":"
+http://www.mail-scanning.com/robots.txt content ":"
+http://www.steve.org.uk/robots.txt content ":"
+http://www.stolen-souls.com/robots.txt content ":"
+http://www.stored-online.com/robots.txt content ":"
+http://www.xen-hosting.net/robots.txt content ":"
+http://www.xen-hosting.org/robots.txt content ":"
+http://xen-hosting.net/robots.txt content ":"
+http://xen-hosting.org/robots.txt content ":"
