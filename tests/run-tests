@@ -94,7 +94,7 @@ while ( my $line = <DATA> )
                 if ( $response ne $to )
                 {
                     $verbose && print " FAIL\n";
-                    print "ERR - $from redirected to $to not $response\n";
+                    print "ERR - $from redirected to $response not $to\n";
                     $fail += 1;
                 }
                 else
@@ -286,8 +286,8 @@ http://www.blogspam.net/  content  "Detection for Blog"
 #
 #  Edinburgh
 #
-http://www.edinburgh-portraits.com/ redirect http://edinburgh-portraits.com/
-http://edinburgh-portraits.com/     content  "Edinburgh Portrait Photography"
+http://www.edinburgh-portraits.com/ redirect http://stolen-souls.com/
+http://edinburgh-portraits.com/     redirect http://stolen-souls.com/
 
 
 #
