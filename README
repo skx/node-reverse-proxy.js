@@ -8,11 +8,7 @@ Mercurial Repository:
 Blog Entries:
     http://blog.steve.org.uk/tags/nodejs/
 
-Tested with source-compiled versions of Node.js:
-    Node.js v0.4.4
-    Node.js v0.4.3
-    Node.js v0.4.2
-    Node.js v0.4.1
+Tested with locally-compiled versions of Node.js: v0.4.1-v0.4.5.
 ( ./configure --without-ssl --prefix=/opt/node && make && make install )
 
 
