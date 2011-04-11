@@ -549,7 +549,6 @@ var handler = function(req, res) {
 
 }
 
-};
 
 /**
  * Last ditch error-recovery
