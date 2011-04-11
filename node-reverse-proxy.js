@@ -76,6 +76,7 @@ var global;
 /**
  * Command line parser.
  */
+
 function parseCommandLine() {
     var inFile = false;
     var inPort = false;
@@ -132,6 +133,7 @@ function parseCommandLine() {
  * Pre-compile the virtual host regexps & rewrite rules for speed.
  *
  */
+
 function loadConfigFile(filename) {
 
     if (cmdline["debug"]) {
@@ -190,6 +192,7 @@ function loadConfigFile(filename) {
  * along with their proxied locations and any rewrite rules
  * which might be present.
  */
+
 function dumpOptions() {
     Object.keys(global.options).forEach(function(vhost) {
         console.log("http://" + vhost + "/");
@@ -279,270 +282,273 @@ var handler = function(req, res) {
     }
 
     /**
-     * If the table lookup succeeded then we have a request for a virtual
+     * If the table lookup failed then we have a request for a virtual
      * host we know about.
      */
-    if (ent) {
+    if (!ent) {
 
         /**
-         * Find any rewrite-rules which might be present for this vhost.
+         * Serve a simple error to the client.
          */
-        var rules = global.options[vhost]['rules'];
+        res.writeHead(500, {
+            'content-type': 'text/html'
+        });
+        res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
+    }
 
-        if (rules) {
 
-            var stop = false;
 
-            Object.keys(rules).forEach(function(rule) {
+    /**
+     * Find any rewrite-rules which might be present for this vhost.
+     */
+    var rules = global.options[vhost]['rules'];
+
+    if (rules) {
+
+        var stop = false;
+
+        Object.keys(rules).forEach(function(rule) {
+
+            /**
+             * Find the pre-compiled regexp for this rule - execute it.
+             */
+            var re = global.options[vhost]['rw_compiled'][rule];
+            var match = re.exec(req.url);
+
+            if ((match) && (!stop)) {
 
                 /**
-                 * Find the pre-compiled regexp for this rule - execute it.
+                 * If the rule matches we have a hit; we need
+                 * to rewrite.
+                 *
+                 * Note: We generally continue to go through this loop
+                 * allowing further rewrites to occur.  That seems more
+                 * sensible to me than to stop at the first hit, although
+                 * if you configure a rewrite to occur which ends in
+                 * "-LAST" it will terminate further updates.
+                 *
+                 * e.g:
+                 *
+                 *   '/robots.txt': '/robots.txt-LAST',
+                 *   '/(.*)':       '/show.cgi?path=$1',
+                 *
+                 * That will rewrite all rules to /show.cgi *except*
+                 * for /robots.txt which will match the first rule
+                 * and due to the "-LAST" will terminate further
+                 * matches.
+                 *
                  */
-                var re = global.options[vhost]['rw_compiled'][rule];
-                var match = re.exec(req.url);
+                var newURL = rules[rule];
 
-                if ((match) && (!stop)) {
+                /**
+                 * If we have a positive number of matches
+                 * (i.e. "captures") then we need to search and replace
+                 * them in turn.
+                 *
+                 *  So we replace $1 with the first capture,
+                 * we replace $2 with the second capture, etc.
+                 *
+                 */
+                if (match.length > 1) {
+                    var i = 1;
+                    while (i <= match.length) {
+                        newURL = newURL.replace("$" + i, match[i]);
+                        i = i + 1;
+                    }
+                }
 
-                    /**
-                     * If the rule matches we have a hit; we need
-                     * to rewrite.
-                     *
-                     * Note: We generally continue to go through this loop
-                     * allowing further rewrites to occur.  That seems more
-                     * sensible to me than to stop at the first hit, although
-                     * if you configure a rewrite to occur which ends in
-                     * "-LAST" it will terminate further updates.
-                     *
-                     * e.g:
-                     *
-                     *   '/robots.txt': '/robots.txt-LAST',
-                     *   '/(.*)':       '/show.cgi?path=$1',
-                     *
-                     * That will rewrite all rules to /show.cgi *except*
-                     * for /robots.txt which will match the first rule
-                     * and due to the "-LAST" will terminate further
-                     * matches.
-                     *
-                     */
-                    var newURL = rules[rule];
+                /**
+                 * If the destination rule begins with "http" we will
+                 * issue a 301 redirect.
+                 */
+                if (newURL.match("^http")) {
 
                     /**
-                     * If we have a positive number of matches
-                     * (i.e. "captures") then we need to search and replace
-                     * them in turn.
-                     *
-                     *  So we replace $1 with the first capture,
-                     * we replace $2 with the second capture, etc.
+                     * TODO: -CODE=302 -> Will generate  a 302 redirect
                      *
                      */
-                    if (match.length > 1) {
-                        var i = 1;
-                        while (i <= match.length) {
-                            newURL = newURL.replace("$" + i, match[i]);
-                            i = i + 1;
-                        }
+                    res.writeHead(301, {
+                        'Location': newURL
+                    });
+                    res.end();
+                } else {
+
+                    /**
+                     * Should we stop the rewrites?
+                     */
+                    var offset = newURL.indexOf("-LAST");
+                    if (offset > 0) {
+                        /**
+                         * Strip the -LAST suffix
+                         */
+                        newURL = newURL.substr(0, offset);
+                        stop = true;
                     }
 
                     /**
-                     * If the destination rule begins with "http" we will
-                     * issue a 301 redirect.
+                     * Otherwise we'll update the request - on the basis
+                     * that we're going to proxy it shortly.
                      */
-                    if (newURL.match("^http")) {
+                    req.url = newURL;
 
-                        /**
-                         * TODO: -CODE=302 -> Will generate  a 302 redirect
-                         *
-                         */
-                        res.writeHead(301, {
-                            'Location': newURL
-                        });
-                        res.end();
-                    } else {
-
-                        /**
-                         * Should we stop the rewrites?
-                         */
-                        var offset = newURL.indexOf("-LAST");
-                        if (offset > 0) {
-                            /**
-                             * Strip the -LAST suffix
-                             */
-                            newURL = newURL.substr(0, offset);
-                            stop = true;
-                        }
-
-                        /**
-                         * Otherwise we'll update the request - on the basis
-                         * that we're going to proxy it shortly.
-                         */
-                        req.url = newURL;
-
-                    }
-                }
-            })
-        }
-
-        /**
-         * See if we have any modification functions to invoke.
-         *
-         * If there are we execute each one in turn.  If we receive
-         * any true response we will regard the request as over
-         * and will not continue to proxy that request.
-         *
-         * The functions are invoked based upon the URL-path requested,
-         * but it is possible there will be more than one.
-         */
-        var func = global.options[vhost]['functions'];
-        var over = false;
-
-        if (func) {
-
-            Object.keys(func).forEach(function(fun) {
-
-                /* The name of the function is a regexp against the path. */
-                if (req.url.match(fun)) {
-
-                    if (global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res)) {
-                        over = true;
-                    }
-                }
-            })
-        }
-
-        /**
-         * If (at least one) functional hook returned true then we're
-         * done with this request.
-         */
-        if (over) {
-            return;
-        }
-
-        /**
-         * OK at this point we have either:
-         *
-         *  a.  No rewrite rules/functions defined for this vhost.
-         *
-         *  b.  Rules defined, but with no matches having been made, or
-         *     without a functional hook returning "true".
-         *
-         * Lookup the host+port we're going to proxy to.
-         */
-        port = global.options[vhost]['port'];
-        host = global.options[vhost]['host'] || "127.0.0.1";
-
-        /**
-         * If that lookup fails we're out of luck.
-         */
-        if ((!port) || (!host)) {
-            res.writeHead(500, {
-                'content-type': 'text/html'
-            });
-            res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
-            return;
-        }
-
-        /**
-         * Otherwise we need to create the proxy-magic.
-         */
-        var proxy = http.createClient(port, host);
-
-        /**
-         * The proxied connection might fail.
-         */
-        proxy.addListener('error', function(socketException) {
-            console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
-            res.writeHead(503, {
-                'content-type': 'text/html'
-            });
-            res.end('Back-end unreachable.');
-        });
-
-        /**
-         * Preserve the original requesting IP address.
-         */
-        req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
-
-        /**
-         * Create the proxy object.
-         */
-        var proxy_request = proxy.request(req.method, req.url, req.headers);
-
-        proxy_request.addListener('response', function(proxy_response) {
-
-            /**
-             * If we have a "Connection: foo" header preserve it.
-             *
-             * Otherwise defualt to "close".
-             */
-            if (proxy_response.headers.connection) {
-                if (req.headers.connection) {
-                    proxy_response.headers.connection = req.headers.connection;
-                }
-                else {
-                    proxy_response.headers.connection = 'close';
                 }
             }
-
-            /**
-             * If there are any post-execution filters apply them
-             */
-            if ((global.filters) && (global.filters['post'])) {
-                global.filters['post'](proxy_response, req, vhost);
-            }
-
-            /**
-             * Send the proxy's initial response back to the client.
-             */
-            res.writeHead(proxy_response.statusCode, proxy_response.headers);
-
-            /**
-             * No 'data' event and no 'end'
-             *
-             * Missing this will lead to oddness - don't ask.
-             */
-            if (proxy_response.statusCode === 304) {
-                res.end();
-                return;
-            }
-
-            /**
-             * Send results from the proxy server back to the originating
-             * client.
-             */
-            proxy_response.addListener('data', function(chunk) {
-                res.write(chunk, 'binary');
-            });
-            proxy_response.addListener('end', function() {
-                res.end();
-            });
-
-        });
-
-        /**
-         * Wire it all up, old-school.
-         */
-        req.addListener('data', function(chunk) {
-            proxy_request.write(chunk, 'binary');
-        });
-
-        req.addListener('end', function() {
-            proxy_request.end();
-        });
-
-        /**
-         * Our work here is done.
-         */
-        return;
-
+        })
     }
 
     /**
-     * OK we received a request for a vhost we don't know about.
+     * See if we have any modification functions to invoke.
+     *
+     * If there are we execute each one in turn.  If we receive
+     * any true response we will regard the request as over
+     * and will not continue to proxy that request.
+     *
+     * The functions are invoked based upon the URL-path requested,
+     * but it is possible there will be more than one.
      */
-    res.writeHead(500, {
-        'content-type': 'text/html'
+    var func = global.options[vhost]['functions'];
+    var over = false;
+
+    if (func) {
+
+        Object.keys(func).forEach(function(fun) {
+
+            /* The name of the function is a regexp against the path. */
+            if (req.url.match(fun)) {
+
+                if (global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res)) {
+                    over = true;
+                }
+            }
+        })
+    }
+
+    /**
+     * If (at least one) functional hook returned true then we're
+     * done with this request.
+     */
+    if (over) {
+        return;
+    }
+
+    /**
+     * OK at this point we have either:
+     *
+     *  a.  No rewrite rules/functions defined for this vhost.
+     *
+     *  b.  Rules defined, but with no matches having been made, or
+     *     without a functional hook returning "true".
+     *
+     * Lookup the host+port we're going to proxy to.
+     */
+    port = global.options[vhost]['port'];
+    host = global.options[vhost]['host'] || "127.0.0.1";
+
+    /**
+     * If that lookup fails we're out of luck.
+     */
+    if ((!port) || (!host)) {
+        res.writeHead(500, {
+            'content-type': 'text/html'
+        });
+        res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
+        return;
+    }
+
+    /**
+     * Otherwise we need to create the proxy-magic.
+     */
+    var proxy = http.createClient(port, host);
+
+    /**
+     * The proxied connection might fail.
+     */
+    proxy.addListener('error', function(socketException) {
+        console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
+        res.writeHead(503, {
+            'content-type': 'text/html'
+        });
+        res.end('Back-end unreachable.');
     });
-    res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
+
+    /**
+     * Preserve the original requesting IP address.
+     */
+    req.headers["X-Forwarded-For"] = req.connection.remoteAddress;
+
+    /**
+     * Create the proxy object.
+     */
+    var proxy_request = proxy.request(req.method, req.url, req.headers);
+
+    proxy_request.addListener('response', function(proxy_response) {
+
+        /**
+         * If we have a "Connection: foo" header preserve it.
+         *
+         * Otherwise defualt to "close".
+         */
+        if (proxy_response.headers.connection) {
+            if (req.headers.connection) {
+                proxy_response.headers.connection = req.headers.connection;
+            } else {
+                proxy_response.headers.connection = 'close';
+            }
+        }
+
+        /**
+         * If there are any post-execution filters apply them
+         */
+        if ((global.filters) && (global.filters['post'])) {
+            global.filters['post'](proxy_response, req, vhost);
+        }
+
+        /**
+         * Send the proxy's initial response back to the client.
+         */
+        res.writeHead(proxy_response.statusCode, proxy_response.headers);
+
+        /**
+         * No 'data' event and no 'end'
+         *
+         * Missing this will lead to oddness - don't ask.
+         */
+        if (proxy_response.statusCode === 304) {
+            res.end();
+            return;
+        }
+
+        /**
+         * Send results from the proxy server back to the originating
+         * client.
+         */
+        proxy_response.addListener('data', function(chunk) {
+            res.write(chunk, 'binary');
+        });
+        proxy_response.addListener('end', function() {
+            res.end();
+        });
+
+    });
+
+    /**
+     * Wire it all up, old-school.
+     */
+    req.addListener('data', function(chunk) {
+        proxy_request.write(chunk, 'binary');
+    });
+
+    req.addListener('end', function() {
+        proxy_request.end();
+    });
+
+    /**
+     * Our work here is done.
+     */
+    return;
+
+}
+
 };
 
 /**
