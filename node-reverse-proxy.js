@@ -290,13 +290,13 @@ var handler = function(req, res) {
         /**
          * There might be a default host.
          */
-        if (global.default) {
+        if (global.defaultvhost) {
             /**
              *  See if that matches any of our know hosts...
              */
             for (var host in global.options) {
                 var hostRE = global.options[host]['compiled'];
-                if (hostRE.exec(global.default)) {
+                if (hostRE.exec(global.defaultvhost)) {
                     ent = global.options[host];
                     vhost = host;
                 }
