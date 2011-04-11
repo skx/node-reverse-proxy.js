@@ -283,17 +283,38 @@ var handler = function(req, res) {
 
     /**
      * If the table lookup failed then we have a request for a virtual
-     * host we know about.
+     * host we don't know about.
      */
     if (!ent) {
 
         /**
-         * Serve a simple error to the client.
+         * There might be a default host.
          */
-        res.writeHead(500, {
-            'content-type': 'text/html'
-        });
-        res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
+        if (global.
+    default) {
+            /**
+             *  See if that matches any of our know hosts...
+             */
+            for (var host in global.options) {
+                var hostRE = global.options[host]['compiled'];
+                if (hostRE.exec(global.
+            default)) {
+                    ent = global.options[host];
+                    vhost = host;
+                }
+            }
+
+            /**
+             * If we *still* don't have a match then we have to
+             * return an error.
+             */
+            if (!ent) {
+                res.writeHead(500, {
+                    'content-type': 'text/html'
+                });
+                res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
+            }
+        }
     }
 
 
