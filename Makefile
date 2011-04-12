@@ -5,10 +5,7 @@ DIST_PREFIX = ${TMP}
 VERSION     = 0.6
 BASE        = node-reverse-proxy
 
-#
-#  For indenting
-#
-JSOPTS=--brace-style=expand
+
 
 #
 #  Show the available targets
@@ -38,6 +35,7 @@ release: tidy clean
 	perl -pi.bak -e "s/UNRELEASED/$(VERSION)/g" $(DIST_PREFIX)/$(BASE)-$(VERSION)/node-reverse-proxy.js
 	rm  $(DIST_PREFIX)/$(BASE)-$(VERSION)/*.bak
 	rm  $(DIST_PREFIX)/$(BASE)-$(VERSION)/rewrites.js
+	rm  $(DIST_PREFIX)/$(BASE)-$(VERSION)/.deploy
 	find  $(DIST_PREFIX)/$(BASE)-$(VERSION) -name ".hg*" -print | xargs rm -rf
 	find  $(DIST_PREFIX)/$(BASE)-$(VERSION) -name ".release" -print | xargs rm -rf
 	cd $(DIST_PREFIX) && tar -cvf $(DIST_PREFIX)/$(BASE)-$(VERSION).tar $(BASE)-$(VERSION)/
@@ -46,6 +44,7 @@ release: tidy clean
 	rm -rf $(DIST_PREFIX)/$(BASE)-$(VERSION)
 	gpg --armour --detach-sign $(BASE)-$(VERSION).tar.gz
 	echo $(VERSION) > .version
+
 
 #
 #  If we have test cases, run them
@@ -66,7 +65,7 @@ jslint:
 #  Tidy the (steve-specific?) Perl test code.
 #
 perltidy:
-	@[ -x /usr/bin/perltidy ]    && perltidy ./tests/run-tests
+	@[ -x /usr/bin/perltidy ]  && perltidy ./tests/run-tests
 
 
 #
@@ -75,8 +74,3 @@ perltidy:
 tidy: jslint perltidy
 
 
-#
-#  Steve's personal deployer.  Nice.
-#
-deploy:
-	rsync -vazr *.js root@steve.org.uk://etc/service/node-reverse-proxy/
