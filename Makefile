@@ -5,7 +5,10 @@ DIST_PREFIX = ${TMP}
 VERSION     = 0.6
 BASE        = node-reverse-proxy
 
-
+#
+#  For indenting
+#
+JSOPTS=--brace-style=expand
 
 #
 #  Show the available targets
@@ -55,8 +58,8 @@ test:
 #  Tidy our Javascript file(s).
 #
 jslint:
-	python ./util/jsbeautifier.py node-reverse-proxy.js > $$; mv $$ node-reverse-proxy.js
-	[ -e rewrites.js ] && python ./util/jsbeautifier.py rewrites.js > $$; mv $$ rewrites.js
+	python ./util/jsbeautifier.py --brace-style=expand node-reverse-proxy.js > $$; mv $$ node-reverse-proxy.js
+	[ -e rewrites.js ] && python ./util/jsbeautifier.py --brace-style=expand rewrites.js > $$; mv $$ rewrites.js
 
 
 #

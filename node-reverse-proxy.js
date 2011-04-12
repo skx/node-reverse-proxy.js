@@ -77,33 +77,42 @@ var global;
  * Command line parser.
  */
 
-function parseCommandLine() {
+function parseCommandLine()
+{
     var inFile = false;
     var inPort = false;
 
-    process.argv.forEach(function(arg) {
+    process.argv.forEach(function(arg)
+    {
 
-        if (inFile) {
+        if (inFile)
+        {
             cmdline['config'] = arg;
             inFile = false;
         }
-        if (inPort) {
+        if (inPort)
+        {
             cmdline['port'] = arg;
             inPort = false;
         }
-        if (arg.match("-+config")) {
+        if (arg.match("-+config"))
+        {
             inFile = true;
         }
-        if (arg.match("-+debug")) {
+        if (arg.match("-+debug"))
+        {
             cmdline['debug'] = true;
         }
-        if (arg.match("-+dump")) {
+        if (arg.match("-+dump"))
+        {
             cmdline['dump'] = true;
         }
-        if (arg.match("-+port")) {
+        if (arg.match("-+port"))
+        {
             inPort = true;
         }
-        if (arg.match("-+help")) {
+        if (arg.match("-+help"))
+        {
             console.log("node-reverse-proxy.js - " + VERSION + " - <http://steve.org.uk/Software/node-reverse-proxy/>");
             console.log("\nUsage:")
             console.log(" node-reverse-proxy [options]")
@@ -121,7 +130,8 @@ function parseCommandLine() {
     /**
      * Ensure we weren't left dangling.
      */
-    if (inFile || inPort) {
+    if (inFile || inPort)
+    {
         console.log("Missing argument!");
         process.exit(1);
     }
@@ -134,18 +144,23 @@ function parseCommandLine() {
  *
  */
 
-function loadConfigFile(filename) {
+function loadConfigFile(filename)
+{
 
-    if (cmdline["debug"]) {
+    if (cmdline["debug"])
+    {
         console.log("Reading configuration file " + filename);
     }
 
     /**
      * See if our named configuration file exists.
      */
-    if (path.existsSync(filename)) {
+    if (path.existsSync(filename))
+    {
         global = require(filename);
-    } else {
+    }
+    else
+    {
         console.log("Configuration file not found - " + filename);
         process.exit(1);
     }
@@ -157,7 +172,8 @@ function loadConfigFile(filename) {
      * Doing this offers a significant speedup.
      *
      */
-    Object.keys(global.options).forEach(function(vhost) {
+    Object.keys(global.options).forEach(function(vhost)
+    {
 
         /**
          * Virtual Hostname regexp.
@@ -169,14 +185,16 @@ function loadConfigFile(filename) {
          */
         rules = global.options[vhost]['rules'];
 
-        if (rules) {
+        if (rules)
+        {
 
             /**
              * Create a sub-hash
              */
             global.options[vhost]['rw_compiled'] = {}
 
-            Object.keys(rules).forEach(function(rule) {
+            Object.keys(rules).forEach(function(rule)
+            {
 
                 /**
                  * Damn that is a lot of nesting...
@@ -193,8 +211,10 @@ function loadConfigFile(filename) {
  * which might be present.
  */
 
-function dumpOptions() {
-    Object.keys(global.options).forEach(function(vhost) {
+function dumpOptions()
+{
+    Object.keys(global.options).forEach(function(vhost)
+    {
         console.log("http://" + vhost + "/");
 
         /**
@@ -205,13 +225,16 @@ function dumpOptions() {
 
         var rules = global.options[vhost]['rules'];
 
-        if (rules) {
-            Object.keys(rules).forEach(function(rule) {
+        if (rules)
+        {
+            Object.keys(rules).forEach(function(rule)
+            {
                 console.log("\tRewriting " + rule + " to " + rules[rule]);
             })
         }
 
-        if (host.length && port.length) {
+        if (host.length && port.length)
+        {
             console.log("\tproxying to " + host + ":" + port);
         }
 
@@ -224,7 +247,8 @@ function dumpOptions() {
  * requests and proxy/rewrite them.
  *
  */
-var handler = function(req, res) {
+var handler = function(req, res)
+{
 
     /**
      * Access the Host: which we received, ensuring it is
@@ -236,14 +260,16 @@ var handler = function(req, res) {
     /**
      * Log, if being verbose.
      */
-    if (cmdline['debug']) {
+    if (cmdline['debug'])
+    {
         console.log("Request for " + vhost + req.url + " from " + req.connection.remoteAddress);
     }
 
     /**
      * If there are any pre-execution filters apply them
      */
-    if ((global.filters) && (global.filters['pre'])) {
+    if ((global.filters) && (global.filters['pre']))
+    {
         global.filters['pre'](req, vhost);
     }
 
@@ -251,7 +277,8 @@ var handler = function(req, res) {
      * If there is a port in the vhost-name then we'll drop it.
      */
     var port = vhost.indexOf(':');
-    if ((port) && (port > 0)) {
+    if ((port) && (port > 0))
+    {
         vhost = vhost.substr(0, port);
     }
 
@@ -273,9 +300,11 @@ var handler = function(req, res) {
      * Note that the entries in that table are regular expressions, albeit
      * anchored ones.
      */
-    for (var host in global.options) {
+    for (var host in global.options)
+    {
         var hostRE = global.options[host]['compiled'];
-        if (hostRE.exec(vhost)) {
+        if (hostRE.exec(vhost))
+        {
             ent = global.options[host];
             vhost = host;
         }
@@ -285,18 +314,22 @@ var handler = function(req, res) {
      * If the table lookup failed then we have a request for a virtual
      * host we don't know about.
      */
-    if (!ent) {
+    if (!ent)
+    {
 
         /**
          * There might be a default host.
          */
-        if (global.defaultvhost) {
+        if (global.defaultvhost)
+        {
             /**
              *  See if that matches any of our know hosts...
              */
-            for (var host in global.options) {
+            for (var host in global.options)
+            {
                 var hostRE = global.options[host]['compiled'];
-                if (hostRE.exec(global.defaultvhost)) {
+                if (hostRE.exec(global.defaultvhost))
+                {
                     ent = global.options[host];
                     vhost = host;
                 }
@@ -306,7 +339,8 @@ var handler = function(req, res) {
              * If we *still* don't have a match then we have to
              * return an error.
              */
-            if (!ent) {
+            if (!ent)
+            {
                 res.writeHead(500, {
                     'content-type': 'text/html'
                 });
@@ -322,11 +356,13 @@ var handler = function(req, res) {
      */
     var rules = global.options[vhost]['rules'];
 
-    if (rules) {
+    if (rules)
+    {
 
         var stop = false;
 
-        Object.keys(rules).forEach(function(rule) {
+        Object.keys(rules).forEach(function(rule)
+        {
 
             /**
              * Find the pre-compiled regexp for this rule - execute it.
@@ -334,7 +370,8 @@ var handler = function(req, res) {
             var re = global.options[vhost]['rw_compiled'][rule];
             var match = re.exec(req.url);
 
-            if ((match) && (!stop)) {
+            if ((match) && (!stop))
+            {
 
                 /**
                  * If the rule matches we have a hit; we need
@@ -368,9 +405,11 @@ var handler = function(req, res) {
                  * we replace $2 with the second capture, etc.
                  *
                  */
-                if (match.length > 1) {
+                if (match.length > 1)
+                {
                     var i = 1;
-                    while (i <= match.length) {
+                    while (i <= match.length)
+                    {
                         newURL = newURL.replace("$" + i, match[i]);
                         i = i + 1;
                     }
@@ -380,7 +419,8 @@ var handler = function(req, res) {
                  * If the destination rule begins with "http" we will
                  * issue a 301 redirect.
                  */
-                if (newURL.match("^http")) {
+                if (newURL.match("^http"))
+                {
 
                     /**
                      * TODO: -CODE=302 -> Will generate  a 302 redirect
@@ -390,13 +430,16 @@ var handler = function(req, res) {
                         'Location': newURL
                     });
                     res.end();
-                } else {
+                }
+                else
+                {
 
                     /**
                      * Should we stop the rewrites?
                      */
                     var offset = newURL.indexOf("-LAST");
-                    if (offset > 0) {
+                    if (offset > 0)
+                    {
                         /**
                          * Strip the -LAST suffix
                          */
@@ -428,14 +471,18 @@ var handler = function(req, res) {
     var func = global.options[vhost]['functions'];
     var over = false;
 
-    if (func) {
+    if (func)
+    {
 
-        Object.keys(func).forEach(function(fun) {
+        Object.keys(func).forEach(function(fun)
+        {
 
             /* The name of the function is a regexp against the path. */
-            if (req.url.match(fun)) {
+            if (req.url.match(fun))
+            {
 
-                if (global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res)) {
+                if (global.options[vhost]['functions'][fun](orig_vhost, vhost, req, res))
+                {
                     over = true;
                 }
             }
@@ -446,7 +493,8 @@ var handler = function(req, res) {
      * If (at least one) functional hook returned true then we're
      * done with this request.
      */
-    if (over) {
+    if (over)
+    {
         return;
     }
 
@@ -466,7 +514,8 @@ var handler = function(req, res) {
     /**
      * If that lookup fails we're out of luck.
      */
-    if ((!port) || (!host)) {
+    if ((!port) || (!host))
+    {
         res.writeHead(500, {
             'content-type': 'text/html'
         });
@@ -482,7 +531,8 @@ var handler = function(req, res) {
     /**
      * The proxied connection might fail.
      */
-    proxy.addListener('error', function(socketException) {
+    proxy.addListener('error', function(socketException)
+    {
         console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
         res.writeHead(503, {
             'content-type': 'text/html'
@@ -500,17 +550,22 @@ var handler = function(req, res) {
      */
     var proxy_request = proxy.request(req.method, req.url, req.headers);
 
-    proxy_request.addListener('response', function(proxy_response) {
+    proxy_request.addListener('response', function(proxy_response)
+    {
 
         /**
          * If we have a "Connection: foo" header preserve it.
          *
          * Otherwise defualt to "close".
          */
-        if (proxy_response.headers.connection) {
-            if (req.headers.connection) {
+        if (proxy_response.headers.connection)
+        {
+            if (req.headers.connection)
+            {
                 proxy_response.headers.connection = req.headers.connection;
-            } else {
+            }
+            else
+            {
                 proxy_response.headers.connection = 'close';
             }
         }
@@ -518,7 +573,8 @@ var handler = function(req, res) {
         /**
          * If there are any post-execution filters apply them
          */
-        if ((global.filters) && (global.filters['post'])) {
+        if ((global.filters) && (global.filters['post']))
+        {
             global.filters['post'](proxy_response, req, vhost);
         }
 
@@ -532,7 +588,8 @@ var handler = function(req, res) {
          *
          * Missing this will lead to oddness - don't ask.
          */
-        if (proxy_response.statusCode === 304) {
+        if (proxy_response.statusCode === 304)
+        {
             res.end();
             return;
         }
@@ -541,10 +598,12 @@ var handler = function(req, res) {
          * Send results from the proxy server back to the originating
          * client.
          */
-        proxy_response.addListener('data', function(chunk) {
+        proxy_response.addListener('data', function(chunk)
+        {
             res.write(chunk, 'binary');
         });
-        proxy_response.addListener('end', function() {
+        proxy_response.addListener('end', function()
+        {
             res.end();
         });
 
@@ -553,11 +612,13 @@ var handler = function(req, res) {
     /**
      * Wire it all up, old-school.
      */
-    req.addListener('data', function(chunk) {
+    req.addListener('data', function(chunk)
+    {
         proxy_request.write(chunk, 'binary');
     });
 
-    req.addListener('end', function() {
+    req.addListener('end', function()
+    {
         proxy_request.end();
     });
 
@@ -572,7 +633,8 @@ var handler = function(req, res) {
 /**
  * Last ditch error-recovery
  */
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function(err)
+{
     console.log("ERROR:" + err);
     console.log(err.stack);
 });
@@ -596,7 +658,8 @@ loadConfigFile(cmdline['config']);
 /**
  * If we're just to dump then do so.
  */
-if (cmdline['dump']) {
+if (cmdline['dump'])
+{
     dumpOptions();
     process.exit(0);
 }
@@ -615,7 +678,8 @@ var port = cmdline['port'] || global.port;
 /**
  * Bind to each requested address, as defined in the configuration file.
  */
-for (val in global.bind) {
+for (val in global.bind)
+{
     console.log("Binding to " + global.bind[val] + ":" + port);
     http.createServer().addListener("request", handler).listen(port, global.bind[val]);
 }
