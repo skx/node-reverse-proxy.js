@@ -2,7 +2,7 @@
 #  Only used to build distribution tarballs.
 #
 DIST_PREFIX = ${TMP}
-VERSION     = 0.5
+VERSION     = 0.6
 BASE        = node-reverse-proxy
 
 
