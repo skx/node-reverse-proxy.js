@@ -345,6 +345,7 @@ var handler = function(req, res)
                     'content-type': 'text/html'
                 });
                 res.end('Error finding host details for virtual host <tt>' + escape(vhost) + '</tt>');
+                return;
             }
         }
     }
