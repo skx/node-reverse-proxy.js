@@ -360,6 +360,7 @@ var handler = function(req, res)
     {
 
         var stop = false;
+        var done = false;
 
         Object.keys(rules).forEach(function(rule)
         {
@@ -430,6 +431,7 @@ var handler = function(req, res)
                         'Location': newURL
                     });
                     res.end();
+                    done = true
                 }
                 else
                 {
@@ -456,6 +458,12 @@ var handler = function(req, res)
                 }
             }
         })
+    }
+
+
+    if (done)
+    {
+        return
     }
 
     /**
