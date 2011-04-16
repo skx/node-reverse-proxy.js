@@ -73,69 +73,106 @@ var VERSION = "UNRELEASED";
  */
 var global;
 
+
+
+
+/**
+ * Show some misery command line help.
+ */
+
+function showHelp()
+{
+
+    console.log("node-reverse-proxy.js - " + VERSION + " - <http://steve.org.uk/Software/node-reverse-proxy/>");
+    console.log("\nUsage:")
+    console.log(" node-reverse-proxy [options]")
+    console.log(" ")
+    console.log(" --config  Use the specified configuration file.  (Default:./rewrites.js)");
+    console.log(" --debug   Show debugging information whilst running.");
+    console.log(" --dump    Dump the configuration file, and exit.");
+    console.log(" --help    Show this help.");
+    console.log(" --port    Override the port to listen upon from the config file.");
+    console.log("");
+
+}
+
+
+
 /**
  * Command line parser.
  */
 
 function parseCommandLine()
 {
-    var inFile = false;
-    var inPort = false;
+
+    /**
+     * Are we "inside" an option that requires a command line argument?
+     */
+    var inOpt = null;
 
     process.argv.forEach(function(arg)
     {
-
-        if (inFile)
+        if (inOpt)
         {
-            cmdline['config'] = arg;
-            inFile = false;
+            /**
+             * Save the argument away in our cmdline hash.
+             */
+            cmdline[inOpt] = arg;
+            inOpt = null;
         }
-        if (inPort)
+        else if (arg.match("-+config$"))
         {
-            cmdline['port'] = arg;
-            inPort = false;
+            /**
+             * update "cmdline['config']" with the next option.
+             */
+            inOpt = 'config'
         }
-        if (arg.match("-+config"))
-        {
-            inFile = true;
-        }
-        if (arg.match("-+debug"))
+        else if (arg.match("-+debug$"))
         {
             cmdline['debug'] = true;
         }
-        if (arg.match("-+dump"))
+        else if (arg.match("-+dump$"))
         {
             cmdline['dump'] = true;
         }
-        if (arg.match("-+port"))
+        else if (arg.match("-+port$"))
         {
-            inPort = true;
+            /**
+             * update "cmdline['port']" with the next option.
+             */
+            inOpt = 'port'
         }
-        if (arg.match("-+help"))
+        else if (arg.match("-+help$"))
         {
-            console.log("node-reverse-proxy.js - " + VERSION + " - <http://steve.org.uk/Software/node-reverse-proxy/>");
-            console.log("\nUsage:")
-            console.log(" node-reverse-proxy [options]")
-            console.log(" ")
-            console.log(" --help    Show this help.");
-            console.log(" --config  Use the specified config file, not ./rewrites.js.");
-            console.log(" --dump    Dump the configuration file, and exit.");
-            console.log(" --debug   Show debugging information whilst running.");
-            console.log(" --port    Override the port to listen upon from the config file.");
-            console.log("");
+            showHelp();
             process.exit(1);
+        }
+        else
+        {
+            /**
+             * TODO proper error handling; right now we receive
+             * the path to the intepretter and ourself - hence the
+             * file-exists test.
+             */
+            if (!path.existsSync(arg))
+            {
+                console.log("Ignoring unknown option : " + arg);
+                console.log("");
+                process.exit(1);
+            }
         }
     })
 
     /**
      * Ensure we weren't left dangling.
      */
-    if (inFile || inPort)
+    if (inOpt)
     {
-        console.log("Missing argument!");
+        console.log("You must supply an argument to the  --" + inOpt + " option.");
         process.exit(1);
     }
 }
+
 
 /**
  * Load the specified configuration file, aborting if it isn't present.
