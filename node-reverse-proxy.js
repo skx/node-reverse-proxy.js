@@ -77,7 +77,7 @@ var global;
 
 
 /**
- * Show some misery command line help.
+ * Show some miserly command-line help.
  */
 
 function showHelp()
@@ -85,7 +85,7 @@ function showHelp()
 
     console.log("node-reverse-proxy.js - " + VERSION + " - <http://steve.org.uk/Software/node-reverse-proxy/>");
     console.log("\nUsage:")
-    console.log(" node-reverse-proxy [options]")
+    console.log(" node node-reverse-proxy.js [options]")
     console.log(" ")
     console.log(" --config  Use the specified configuration file.  (Default:./rewrites.js)");
     console.log(" --debug   Show debugging information whilst running.");
@@ -110,8 +110,18 @@ function parseCommandLine()
      */
     var inOpt = null;
 
-    process.argv.forEach(function(arg)
+    /**
+     * Number of command line arguments.
+     */
+    var len = process.argv.length;
+
+    /**
+     * iterate over all arguments.
+     */
+    for (i = 2; i < len; i++)
     {
+        var arg = process.argv[i];
+
         if (inOpt)
         {
             /**
@@ -149,19 +159,12 @@ function parseCommandLine()
         }
         else
         {
-            /**
-             * TODO proper error handling; right now we receive
-             * the path to the intepretter and ourself - hence the
-             * file-exists test.
-             */
-            if (!path.existsSync(arg))
-            {
-                console.log("Ignoring unknown option : " + arg);
-                console.log("");
-                process.exit(1);
-            }
+            console.log("Ignoring unknown option : " + arg);
+            console.log("");
+            showHelp();
+            process.exit(1);
         }
-    })
+    }
 
     /**
      * Ensure we weren't left dangling.
@@ -713,7 +716,8 @@ if (cmdline['dump'])
 /**
  * Launch and display our starting options.
  */
-console.log("node-reverse-proxy.js v" + VERSION + "\n");
+console.log("node-reverse-proxy.js v" + VERSION + " reading config: " + cmdline['config']);
+console.log("");
 
 /**
  * Port is either that from the command-line parser, or from the
