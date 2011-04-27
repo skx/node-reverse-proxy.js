@@ -88,7 +88,7 @@ exports.filters = {
      *
      * req: The incoming request.  (Read-only);
      *
-     * vhost: THe incoming virtual host.  (Read-only).
+     * vhost: The incoming virtual host.  (Read-only).
      */
     'post': (function(proxy_response, req, vhost)
     {
