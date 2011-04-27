@@ -734,6 +734,17 @@ for (val in global.bind)
     http.createServer().addListener("request", handler).listen(port, global.bind[val]);
 }
 
+
+/**
+ * Change user now that we've bound the port.
+ */
+if (global.user !== null)
+{
+    console.log("\nSwitching to user " + global.user);
+    process.setuid(global.user);
+}
+
+
 /**
  * Now we're cooking on gas.
  */
