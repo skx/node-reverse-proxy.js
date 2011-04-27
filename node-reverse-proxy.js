@@ -738,7 +738,7 @@ for (val in global.bind)
 /**
  * Change user now that we've bound the port.
  */
-if (global.user !== null)
+if (global.user)
 {
     console.log("\nSwitching to user " + global.user);
     process.setuid(global.user);
