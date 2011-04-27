@@ -26,13 +26,13 @@
 exports.options = {
 
     /**
-      * rewrites for dynamic domains.
-      *
-      * This rule matches any hostname with a "repository.steve.org.uk"
-      * suffix - because these keys are regular expressions, not literal
-      * hostnames.
-      *
-      */
+     * rewrites for dynamic domains.
+     *
+     * This rule matches any hostname with a "repository.steve.org.uk"
+     * suffix - because these keys are regular expressions, not literal
+     * hostnames.
+     *
+     */
     '([^.]*).repository.steve.org.uk': {
         /**
          * Rewrites for static files - these will be handled via a
@@ -53,7 +53,8 @@ exports.options = {
          *
          */
         'functions': {
-            '/': (function(orig_host, vhost, req, res) {
+            '/': (function(orig_host, vhost, req, res)
+            {
 
                 /**
                  * Get the requested hostname.
@@ -61,7 +62,8 @@ exports.options = {
                 var hostRE = new RegExp("^([^.]+)\.repository\.steve.\org\.uk");
                 var hostMatch = hostRE.exec(orig_host)
 
-                if (hostMatch != null) {
+                if (hostMatch != null)
+                {
 
                     /**
                      * If that worked and we update the path

@@ -7,10 +7,10 @@
 exports.options = {
 
     /**
-      * Rewrite requests for example.com, or www.example.com, to the
-      * proxy running on 127.0.0.1:8000
-      *
-      */
+     * Rewrite requests for example.com, or www.example.com, to the
+     * proxy running on 127.0.0.1:8000
+     *
+     */
     '(example.com|www.example.com)': {
         'port': '8080',
         'host': 'localhost',

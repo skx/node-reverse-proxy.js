@@ -34,17 +34,20 @@ exports.options = {
 
     'proxy.example.com': {
         'functions': {
-            '/stop': (function(orig_host, vhost, req, res) {
+            '/stop': (function(orig_host, vhost, req, res)
+            {
                 var remote = req.connection.remoteAddress;;
 
-                if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1")) {
+                if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1"))
+                {
                     console.log("Ignored stop request from " + remote);
                     res.writeHead(403);
                     res.write("Denied access to " + req.url + " from " + remote);
                     res.end()
                     return true;
                 }
-                else {
+                else
+                {
                     console.log("Manually stopped by " + remote);
                     process.exit(1);
                     res.end();
@@ -52,25 +55,32 @@ exports.options = {
                 }
 
             }),
-            '/uptime/*': (function(orig_host, vhost, req, res) {
+            '/uptime/*': (function(orig_host, vhost, req, res)
+            {
                 var remote = req.connection.remoteAddress;;
 
-                if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1")) {
+                if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1"))
+                {
                     console.log("Ignored uptime request from " + remote);
                     res.writeHead(403);
                     res.write("Denied access to " + req.url + " from " + remote);
                     res.end();
                     return true;
                 }
-                else {
+                else
+                {
                     console.log("Uptime request from " + remote);
                     exec = require("child_process").exec;
 
                     res.writeHead(200, {
                         'content-type': 'text/plain'
                     });
-                    exec("sv status node-reverse-proxy", function(err, stdout, stderr) {
-                        if (err) {} else {
+                    exec("sv status node-reverse-proxy", function(err, stdout, stderr)
+                    {
+                        if (err)
+                        {}
+                        else
+                        {
                             res.write(stdout);
                             res.end();
                             return true;
@@ -80,17 +90,20 @@ exports.options = {
                 }
             }),
 
-            '^/$': (function(orig_host, vhost, req, res) {
+            '^/$': (function(orig_host, vhost, req, res)
+            {
                 var remote = req.connection.remoteAddress;;
 
-                if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1")) {
+                if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1"))
+                {
                     console.log("Ignored proxy request from " + remote);
                     res.writeHead(403);
                     res.write("Denied access to " + req.url + " from " + remote);
                     res.end();
                     return true;
                 }
-                else {
+                else
+                {
                     console.log("proxy index request from " + remote);
                     res.writeHead(200, {
                         'content-type': 'text/html'

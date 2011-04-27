@@ -31,9 +31,12 @@ trusted = new Array("1.2.3.4", "2.3.4.5");
 /**
  * A helper function for finding a value in an array.
  */
-trusted.grep = function(value) {
-    for (var i = 0; i < this.length; ++i) {
-        if (this[i] == value) {
+trusted.grep = function(value)
+{
+    for (var i = 0; i < this.length; ++i)
+    {
+        if (this[i] == value)
+        {
             return true;
         }
     }
@@ -56,17 +59,20 @@ exports.options = {
          * Hook called for requests beneath /private.
          */
         'functions': {
-            '/private': (function(orig_host, vhost, req, res) {
+            '/private': (function(orig_host, vhost, req, res)
+            {
                 var remote = req.connection.remoteAddress;;
 
-                if (trusted.grep(remote)) {
+                if (trusted.grep(remote))
+                {
                     /**
                      * this request wasn't handled, so it should
                      * proceed to be proxied.
                      */
                     return false;
                 }
-                else {
+                else
+                {
                     res.writeHead(403);
                     res.write(req.url + " denied to " + remote);
                     res.end()

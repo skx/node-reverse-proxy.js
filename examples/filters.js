@@ -50,7 +50,8 @@ exports.filters = {
      * The incoming request object, which it is free to modify, and
      * the virtual hostname - which is read-only.
      */
-    'pre': (function(req, vhost) {
+    'pre': (function(req, vhost)
+    {
 
         console.log("pre-filter");
 
@@ -61,7 +62,8 @@ exports.filters = {
          * Munge the incoming request until it starts with one leading "/".
          *
          */
-        while (req.url.substr(0, 2) == "//") {
+        while (req.url.substr(0, 2) == "//")
+        {
             req.url = req.url.substr(1);
         }
 
@@ -69,7 +71,8 @@ exports.filters = {
          * Append ourself to the client-supplied user-agent.
          */
         var agent = ""
-        if (req.headers["user-agent"]) {
+        if (req.headers["user-agent"])
+        {
             agent = req.headers["user-agent"] + "; ";
         }
         req.headers["User-Agent"] = agent + "node-reverse-proxy.js";
@@ -87,7 +90,8 @@ exports.filters = {
      *
      * vhost: THe incoming virtual host.  (Read-only).
      */
-    'post': (function(proxy_response, req, vhost) {
+    'post': (function(proxy_response, req, vhost)
+    {
 
         console.log("post-filter");
 
@@ -95,7 +99,8 @@ exports.filters = {
          * Update the Server: header to include our name.
          */
         var server = ""
-        if (proxy_response.headers["server"]) {
+        if (proxy_response.headers["server"])
+        {
             server = proxy_response.headers["server"] + "; ";
         }
         proxy_response.headers["server"] = server + "node-reverse-proxy.js";
