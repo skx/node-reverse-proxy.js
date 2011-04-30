@@ -582,11 +582,11 @@ var handler = function(req, res)
      */
     proxy.addListener('error', function(socketException)
     {
-        console.log("Request for " + vhost + " failed - back-end server " + host + ":" + port + " unreachable");
+        console.log("Request for http://" + vhost + req.url + " failed - back-end server " + host + ":" + port + " caused exception : " + socketException );
         res.writeHead(503, {
             'content-type': 'text/html'
         });
-        res.end('Back-end unreachable.');
+        res.end('An error was encountered talking to the back-end server.');
     });
 
     /**
@@ -605,7 +605,7 @@ var handler = function(req, res)
         /**
          * If we have a "Connection: foo" header preserve it.
          *
-         * Otherwise defualt to "close".
+         * Otherwise default to "close".
          */
         if (proxy_response.headers.connection)
         {
