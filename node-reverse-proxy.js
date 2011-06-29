@@ -582,7 +582,7 @@ var handler = function(req, res)
      */
     proxy.addListener('error', function(socketException)
     {
-        console.log("Request for http://" + vhost + req.url + " failed - back-end server " + host + ":" + port + " caused exception : " + socketException );
+        console.log("Request for http://" + vhost + req.url + " failed - back-end server " + host + ":" + port + " caused exception : " + socketException);
         res.writeHead(503, {
             'content-type': 'text/html'
         });
