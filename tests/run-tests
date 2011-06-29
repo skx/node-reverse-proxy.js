@@ -332,11 +332,12 @@ http://steve.org.uk/               redirect http://www.steve.org.uk/
 http://ipv4.steve.org.uk/          content  "ipv4 test host"
 http://ipv6.steve.org.uk/          content  "ipv6 test host"
 http://packages.steve.org.uk/      content  "for lenny"
-http://picshare.steve.org.uk/      content  "about"
+http://picshare.steve.org.uk/      content  "only for historical"
 http://static.steve.org.uk/        content  "javascript libraries"
 http://steve.org.uk/               content  "Steve Kemp"
 http://todo.steve.org.uk/          content  "/account/create"
 http://www.steve.org.uk/           content  "Steve Kemp"
+http://linkti.me/                  content  "About this site"
 
 #
 #  Other steve.org.uk hosts.
