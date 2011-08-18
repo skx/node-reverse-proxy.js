@@ -351,15 +351,6 @@ http://repository.steve.org.uk/cgi-bin/hgwebdir.cgi/itag/ content  "ChangeLog"
 
 
 #
-#  Xen-Hosting
-#
-http://xen-hosting.org/      redirect http://kvm-hosting.org/
-http://www.xen-hosting.org/  redirect http://kvm-hosting.org/
-http://xen-hosting.net/      redirect http://kvm-hosting.org/
-http://www.xen-hosting.net/  redirect http://kvm-hosting.org/
-
-
-#
 #  URL mogrification
 #
 http://www.steve.org.uk/      content "Steve Kemp"
@@ -408,7 +399,3 @@ http://www.mail-scanning.com/robots.txt content ":"
 http://www.steve.org.uk/robots.txt content ":"
 http://www.stolen-souls.com/robots.txt content ":"
 http://www.stored-online.com/robots.txt content ":"
-http://www.xen-hosting.net/robots.txt content ":"
-http://www.xen-hosting.org/robots.txt content ":"
-http://xen-hosting.net/robots.txt content ":"
-http://xen-hosting.org/robots.txt content ":"
