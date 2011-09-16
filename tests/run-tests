@@ -283,11 +283,7 @@ http://test.blogspam.net/ redirect http://blogspam.net/
 http://www.blogspam.net/  redirect http://blogspam.net/
 http://www.blogspam.net/  content  "Detection for Blog"
 
-#
-#  Edinburgh
-#
-http://www.edinburgh-portraits.com/ redirect http://stolen-souls.com/
-http://edinburgh-portraits.com/     redirect http://stolen-souls.com/
+http://www.edinburgh-portraits.com/ redirect http://edinburgh-portraits.com/
 
 
 #
@@ -318,6 +314,7 @@ http://www.stored-online.com/     redirect http://stored-online.com/
 #
 #  Stolen-Souls
 #
+http://edinburgh-portraits.com/         content Edinburgh
 http://stolen-souls.com/                content  "Amateur"
 http://www.stolen-souls.com/            content  "Amateur"
 http://www.stolen-souls.com/            redirect http://stolen-souls.com/
