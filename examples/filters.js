@@ -45,13 +45,17 @@ exports.options = {
 exports.filters = {
 
     /**
-     * The pre-filter receives two pieces of information:
+     * The pre-filter receives three pieces of information:
      *
      * The incoming request object, which it is free to modify, and
-     * the virtual hostname - which is read-only.
+     * the virtual hostname - which is read-only.  Additionally it
+     * receives a response object to which it may write to if it wishes.
      *
-     * If this function returns "false" the further handling of the
+     * If this function returns "true" the further handling of the
      * request is aborted.
+     *
+     * "True" essentially means "this request was handled; stop now".
+     *
      */
     'pre': (function(req, res, vhost)
     {
