@@ -310,7 +310,21 @@ var handler = function(req, res)
      */
     if ((global.filters) && (global.filters['pre']))
     {
-        global.filters['pre'](req, vhost);
+        /**
+         * If the filter returns 'true' then we abort further
+         * processing.
+         *
+         * NOTE: This assumes the filter sends a response to
+         *       the originating client.
+         *
+         * This behaviour matches the same result in the filter functions,
+         * there a 'true' means "request handled, we're over".
+         *
+         */
+        if ( global.filters['pre'](req, res,vhost) )
+        {
+            return;
+        }
     }
 
     /**

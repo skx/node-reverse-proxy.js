@@ -49,8 +49,11 @@ exports.filters = {
      *
      * The incoming request object, which it is free to modify, and
      * the virtual hostname - which is read-only.
+     *
+     * If this function returns "false" the further handling of the
+     * request is aborted.
      */
-    'pre': (function(req, vhost)
+    'pre': (function(req, res, vhost)
     {
 
         console.log("pre-filter");
@@ -76,6 +79,8 @@ exports.filters = {
             agent = req.headers["user-agent"] + "; ";
         }
         req.headers["User-Agent"] = agent + "node-reverse-proxy.js";
+
+        return false;
     }),
 
     /**
