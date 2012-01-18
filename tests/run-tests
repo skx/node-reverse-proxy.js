@@ -306,6 +306,12 @@ http://book.mail-scanning.com/ content  "Steve Kemp"
 
 
 #
+#  Tasteful
+#
+http://www.tasteful.xxx/     redirect http://tasteful.xxx/
+http://tasteful.xxx/         content  "Erotic Photography"
+
+#
 #  Stored-Online
 #
 http://www.stored-online.com/     redirect http://stored-online.com/
@@ -355,6 +361,7 @@ http://www.steve.org.uk//     content "Steve Kemp"
 http://www.steve.org.uk///    content "Steve Kemp"
 http://www.steve.org.uk////   content "Steve Kemp"
 http://www.steve.org.uk/////  content "Steve Kemp"
+
 
 
 
