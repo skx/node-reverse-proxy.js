@@ -311,11 +311,6 @@ http://book.mail-scanning.com/ content  "Steve Kemp"
 http://www.tasteful.xxx/     redirect http://tasteful.xxx/
 http://tasteful.xxx/         content  "Erotic Photography"
 
-#
-#  Stored-Online
-#
-http://www.stored-online.com/     redirect http://stored-online.com/
-
 
 #
 #  Stolen-Souls
@@ -391,7 +386,6 @@ http://repository.steve.org.uk/robots.txt content ":"
 http://static.steve.org.uk/robots.txt content ":"
 http://steve.org.uk/robots.txt content ":"
 http://stolen-souls.com/robots.txt content ":"
-http://stored-online.com/robots.txt content ":"
 http://test.blogspam.net/robots.txt content ":"
 http://todo.steve.org.uk/robots.txt content ":"
 http://www.blogspam.net/robots.txt content ":"
@@ -402,4 +396,3 @@ http://www.kvm-hosting.org/robots.txt content ":"
 http://www.mail-scanning.com/robots.txt content ":"
 http://www.steve.org.uk/robots.txt content ":"
 http://www.stolen-souls.com/robots.txt content ":"
-http://www.stored-online.com/robots.txt content ":"
