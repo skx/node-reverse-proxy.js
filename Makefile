@@ -26,6 +26,16 @@ clean:
 
 
 #
+#  Deploy the current code, and the current rewrite file.
+#
+#  Restart the service post-deploy.
+#
+deploy:
+	rsync -vazr *.js root@steve.org.uk://etc/service/node-reverse-proxy/
+	ssh www.steve.org.uk 'echo -e "GET /stop HTTP/1.0\nHost: proxy.steve.org.uk\n" | nc ipv4.steve.org.uk 80'
+
+
+#
 #  Make a new release tarball, and make a GPG signature.
 #
 release: tidy clean
