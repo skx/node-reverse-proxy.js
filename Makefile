@@ -30,7 +30,7 @@ clean:
 #
 #  Restart the service post-deploy.
 #
-deploy:
+deploy: tidy
 	rsync -vazr *.js root@steve.org.uk://etc/service/node-reverse-proxy/
 	ssh www.steve.org.uk 'echo -e "GET /stop HTTP/1.0\nHost: proxy.steve.org.uk\n" | nc ipv4.steve.org.uk 80'
 
