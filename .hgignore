@@ -4,6 +4,5 @@
 
 syntax: glob
 ./.version
-./.deploy
 ./rewrites.js
 ./tests/*.bak
