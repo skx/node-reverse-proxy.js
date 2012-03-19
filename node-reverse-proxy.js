@@ -321,7 +321,7 @@ var handler = function(req, res)
          * there a 'true' means "request handled, we're over".
          *
          */
-        if ( global.filters['pre'](req, res,vhost) )
+        if (global.filters['pre'](req, res, vhost))
         {
             return;
         }
