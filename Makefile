@@ -45,7 +45,6 @@ release: tidy clean
 	perl -pi.bak -e "s/UNRELEASED/$(VERSION)/g" $(DIST_PREFIX)/$(BASE)-$(VERSION)/node-reverse-proxy.js
 	rm  $(DIST_PREFIX)/$(BASE)-$(VERSION)/*.bak
 	rm  $(DIST_PREFIX)/$(BASE)-$(VERSION)/rewrites.js
-	rm  $(DIST_PREFIX)/$(BASE)-$(VERSION)/.deploy
 	find  $(DIST_PREFIX)/$(BASE)-$(VERSION) -name ".hg*" -print | xargs rm -rf
 	find  $(DIST_PREFIX)/$(BASE)-$(VERSION) -name ".release" -print | xargs rm -rf
 	cd $(DIST_PREFIX) && tar -cvf $(DIST_PREFIX)/$(BASE)-$(VERSION).tar $(BASE)-$(VERSION)/
