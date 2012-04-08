@@ -58,7 +58,7 @@ exports.options = {
                 /**
                  * Get the requested hostname.
                  */
-                var hostRE    = new RegExp("^([^.]+)\.repository\.steve.\org\.uk");
+                var hostRE = new RegExp("^([^.]+)\.repository\.steve.\org\.uk");
                 var hostMatch = hostRE.exec(orig_host);
 
                 if (hostMatch != null)
