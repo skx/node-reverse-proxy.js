@@ -23,10 +23,14 @@
  *
  */
 
+
+
 /**
  * The trusted IP addresses for access to /private.
  */
 trusted = new Array("1.2.3.4", "2.3.4.5");
+
+
 
 /**
  * A helper function for finding a value in an array.
@@ -42,6 +46,9 @@ trusted.grep = function(value)
     }
     return false;
 };
+
+
+
 
 exports.options = {
 
@@ -61,7 +68,7 @@ exports.options = {
         'functions': {
             '/private': (function(orig_host, vhost, req, res)
             {
-                var remote = req.connection.remoteAddress;;
+                var remote = req.connection.remoteAddress;
 
                 if (trusted.grep(remote))
                 {
@@ -91,9 +98,9 @@ exports.options = {
 /**
  * The port we listen upon.
  */
-exports.port = 80
+exports.port = 80;
 
 /**
  * The addresses we will listen upon.
  */
-exports.bind = new Array("192.168.1.100", "127.0.0.1")
+exports.bind = new Array("192.168.1.100", "127.0.0.1");

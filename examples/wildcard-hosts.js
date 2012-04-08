@@ -10,8 +10,7 @@
  *
  *   a.  Succeed.
  *
- *   b.  Present the hgwebdir interface to the specific project
- *     named in the hostname.
+ *   b.  Present the hgwebdir interface to the specific project named in the hostname.
  *
  * This is a pretty basic operation, but it requires that we modify
  * the incoming "Host:" header which was submitted by the client,
@@ -40,7 +39,7 @@ exports.options = {
          */
         'rules': {
             '^/robots.txt': 'http://repository.steve.org.uk/robots.txt',
-            '^/favicon.ico': 'http://repository.steve.org.uk/favicon.ico',
+            '^/favicon.ico': 'http://repository.steve.org.uk/favicon.ico'
         },
 
         /**
@@ -59,8 +58,8 @@ exports.options = {
                 /**
                  * Get the requested hostname.
                  */
-                var hostRE = new RegExp("^([^.]+)\.repository\.steve.\org\.uk");
-                var hostMatch = hostRE.exec(orig_host)
+                var hostRE    = new RegExp("^([^.]+)\.repository\.steve.\org\.uk");
+                var hostMatch = hostRE.exec(orig_host);
 
                 if (hostMatch != null)
                 {
@@ -68,7 +67,7 @@ exports.options = {
                     /**
                      * If that worked and we update the path
                      */
-                    req.url = "/cgi-bin/hgwebdir.cgi/" + hostMatch[1] + req.url
+                    req.url = "/cgi-bin/hgwebdir.cgi/" + hostMatch[1] + req.url;
 
                     /**
                      * And rewrite to the static host
@@ -109,8 +108,8 @@ exports.options = {
      */
     'repository.steve.org.uk': {
         'port': '1018',
-        'host': 'localhost',
-    },
+        'host': 'localhost'
+    }
 
 };
 

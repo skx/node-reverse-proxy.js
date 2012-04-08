@@ -34,16 +34,17 @@ exports.options = {
 
     'proxy.example.com': {
         'functions': {
+
             '/stop': (function(orig_host, vhost, req, res)
             {
-                var remote = req.connection.remoteAddress;;
+                var remote = req.connection.remoteAddress;
 
                 if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1"))
                 {
                     console.log("Ignored stop request from " + remote);
                     res.writeHead(403);
                     res.write("Denied access to " + req.url + " from " + remote);
-                    res.end()
+                    res.end();
                     return true;
                 }
                 else
@@ -55,9 +56,10 @@ exports.options = {
                 }
 
             }),
+
             '/uptime/*': (function(orig_host, vhost, req, res)
             {
-                var remote = req.connection.remoteAddress;;
+                var remote = req.connection.remoteAddress;
 
                 if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1"))
                 {
@@ -92,7 +94,7 @@ exports.options = {
 
             '^/$': (function(orig_host, vhost, req, res)
             {
-                var remote = req.connection.remoteAddress;;
+                var remote = req.connection.remoteAddress;
 
                 if ((remote != "::1") && (remote != "127.0.0.1") && (remote != "::1"))
                 {
@@ -121,7 +123,7 @@ exports.options = {
 /**
  * The port we listen upon.
  */
-exports.port = 80
+exports.port = 80;
 
 /**
  * The addresses we will listen upon.

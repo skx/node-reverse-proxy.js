@@ -30,7 +30,7 @@ exports.options = {
          * The host and port to which we forward the requests.
          */
         'host': '127.0.0.1',
-        'port': '8080',
+        'port': '8080'
     },
 
     /**
@@ -68,9 +68,9 @@ exports.options = {
 /**
  * The port we listen upon.
  */
-exports.port = 80
+exports.port = 80;
 
 /**
  * The addresses we will listen upon.
  */
-exports.bind = new Array("192.168.1.100", "127.0.0.1")
+exports.bind = new Array("192.168.1.100", "127.0.0.1");

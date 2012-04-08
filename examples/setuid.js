@@ -13,7 +13,7 @@ exports.options = {
      */
     '(example.com|www.example.com)': {
         'port': '8080',
-        'host': 'localhost',
+        'host': 'localhost'
     },
 
 };
@@ -21,12 +21,13 @@ exports.options = {
 /**
  * The port we listen upon.
  */
-exports.port = 8080
+exports.port = 8080;
+
 
 /**
  * The addresses we will listen upon.
  */
-exports.bind = new Array("127.0.0.1", "::1")
+exports.bind = new Array("127.0.0.1", "::1");
 
 
 /**
