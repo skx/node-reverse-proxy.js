@@ -34,7 +34,7 @@ exports.options = {
      */
     '.*': {
         'host': '127.0.0.1',
-        'port': 80,
+        'port': 80
     }
 
 };
@@ -69,7 +69,7 @@ exports.filters = {
          * Munge the incoming request until it starts with one leading "/".
          *
          */
-        while (req.url.substr(0, 2) == "//")
+        while (req.url.substr(0, 2) === "//")
         {
             req.url = req.url.substr(1);
         }
@@ -77,7 +77,7 @@ exports.filters = {
         /**
          * Append ourself to the client-supplied user-agent.
          */
-        var agent = ""
+        var agent = "";
         if (req.headers["user-agent"])
         {
             agent = req.headers["user-agent"] + "; ";
@@ -107,13 +107,13 @@ exports.filters = {
         /**
          * Update the Server: header to include our name.
          */
-        var server = ""
+        var server = "";
         if (proxy_response.headers["server"])
         {
             server = proxy_response.headers["server"] + "; ";
         }
         proxy_response.headers["server"] = server + "node-reverse-proxy.js";
-    }),
+    })
 
 };
 
