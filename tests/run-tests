@@ -284,6 +284,7 @@ http://www.blogspam.net/  redirect http://blogspam.net/
 http://www.blogspam.net/  content  "Detection for Blog"
 
 http://www.edinburgh-portraits.com/ redirect http://edinburgh-portraits.com/
+http://www.edinburgh-portraits.com/portraits/ redirect http://edinburgh-portraits.com/portraits/
 
 
 #
@@ -296,6 +297,11 @@ http://kvm-hosting.com/      redirect http://kvm-hosting.org/
 http://kvm-hosting.net/      redirect http://kvm-hosting.org/
 http://kvm-hosting.org/      content  "About KVM Hosting"
 http://ipv6.kvm-hosting.org/ content  "About KVM Hosting"
+
+#
+# Kirsi.org
+#
+http://www.kirsi.org/ redirect http://kirsi.org/
 
 #
 #  Mail-Scanning
