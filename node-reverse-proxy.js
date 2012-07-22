@@ -44,7 +44,7 @@
  * Load the Node.js HTTP & filesystem libraries which we use.
  */
 var http = require('http');
-var fs   = require('fs');
+var fs = require('fs');
 
 /**
  * The defaults for our command line parser
@@ -589,7 +589,7 @@ var handler = function(req, res)
     /**
      * Otherwise we need to create the proxy-magic.
      */
-    var proxy = http.request(port, host);
+    var proxy = http.createClient(port, host);
 
     /**
      * The proxied connection might fail.
