@@ -41,10 +41,10 @@
  */
 
 /**
- * Load the Node.js HTTP & PATH libraries.
+ * Load the Node.js HTTP & filesystem libraries which we use.
  */
 var http = require('http');
-var path = require('path');
+var fs   = require('fs');
 
 /**
  * The defaults for our command line parser
@@ -195,7 +195,7 @@ function loadConfigFile(filename)
     /**
      * See if our named configuration file exists.
      */
-    if (path.existsSync(filename))
+    if (fs.existsSync(filename))
     {
         global = require(filename);
     }
@@ -589,7 +589,7 @@ var handler = function(req, res)
     /**
      * Otherwise we need to create the proxy-magic.
      */
-    var proxy = http.createClient(port, host);
+    var proxy = http.request(port, host);
 
     /**
      * The proxied connection might fail.
