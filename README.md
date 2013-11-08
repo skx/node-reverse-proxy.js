@@ -97,7 +97,32 @@ The simplest possible configuration file would define a single virtual host, and
 
 The next most complex file might have a number of virtual hosts, including some simple rewrites of incoming requests. The simplest possible rewrite would be to redirect each incoming request against a particular host to another server. For example redirecting all visitors of "http://www.example.com/" to the preferred domain "http://example.com/ :
 
-* examples/one-host-rewrites.js
+* [examples/one-host-rewrites.js](examples/one-host-rewrites.js)
+
+
+Other Features
+--------------
+
+As documented on the [homepage](http://www.steve.org.uk/Software/node-reverse-proxy/) you can apply rewrites to incoming requests.
+
+A simple rewriting example is:
+
+    'example.com':
+        {
+           'port': '1020',
+           'host': 'localhost',
+           rules: {
+                      '/random': '/cgi-bin/random.cgi',
+                     '/people/([^/]+)/*$': '/people/$1.html',
+           }
+    },
+
+This remaps http://example/people/bob/ to http://example.com/people/bob.html, as well as changing the requested URL for requests to http://example.com/random.
+
+Similarly there is the facility to perform ACL-checks, and perform other complicated handling:
+
+* [examples/wildcard-hosts.js](examples/wildcard-hosts.js) - Wildcard hosting with conditional handling.
+* [examples/filters.js](examples/filters.js) - Filters applied before and after requests are executed.
 
 
 Bugs?
