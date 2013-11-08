@@ -62,7 +62,7 @@ located upon your filesystem.
 Once you've created a suitable configuration file the proxy may
 be launched as:
 
-   node ./node-reverse-proxy.js --config ./rules.js
+    $ node ./node-reverse-proxy.js --config ./rules.js
 
 This will load the rules you've defined in the file "rules.js" and launch
 the server appropriately.
@@ -87,13 +87,15 @@ Optionally you may also define & use:
 
 The simplest possible configuration file would define a single virtual host, and give the destination of a "back-end" proxy to route the incoming requests to. That configuration file would look something like this:
 
-* examples/one-vhost.js
+* [examples/one-vhost.js](blob/master/examples/one-vhost.js)
 
-* Note that the hosts which are listed in the examples are actually regular expressions, so you can match multiple hosts with ease. This is best demonstrated via:
 
-* examples/regexp-vhosts.js
+**Note**:  The hostnames which are listed in the examples are actually regular expressions, so you can match multiple hosts with ease. This is best demonstrated via:
 
-* The next most complex file might have a number of virtual hosts, including some simple rewrites of incoming requests. The simplest possible rewrite would be to redirect each incoming request against a particular host to another server. For example redirecting all visitors of "http://www.example.com/" to the preferred domain "http://example.com/ :
+* [examples/regexp-vhosts.js](blob/master/examples/regexp-vhosts.js)
+
+
+The next most complex file might have a number of virtual hosts, including some simple rewrites of incoming requests. The simplest possible rewrite would be to redirect each incoming request against a particular host to another server. For example redirecting all visitors of "http://www.example.com/" to the preferred domain "http://example.com/ :
 
 * examples/one-host-rewrites.js
 
