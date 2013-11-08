@@ -2,11 +2,12 @@
 Homepage:
     http://www.steve.org.uk/Software/node-reverse-proxy
 
-Mercurial Repository:
+Repository:
     http://github.com/skx/node-reverse-proxy/
 
-Blog Entries:
-    http://blog.steve.org.uk/tags/nodejs/
+Author:
+    Steve Kemp <steve@steve.org.uk>
+
 
 
 
