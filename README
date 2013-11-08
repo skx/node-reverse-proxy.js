@@ -3,14 +3,10 @@ Homepage:
     http://www.steve.org.uk/Software/node-reverse-proxy
 
 Mercurial Repository:
-    http://node-reverse-proxy.repository.steve.org.uk/
+    http://github.com/skx/node-reverse-proxy/
 
 Blog Entries:
     http://blog.steve.org.uk/tags/nodejs/
-
-Tested with locally-compiled versions of Node.js: v0.4.1-v0.4.5.
-( ./configure --without-ssl --prefix=/opt/node && make && make install )
-
 
 
 
@@ -44,12 +40,11 @@ it is sent back to the originating client.
 
 Simple rewrites of incoming requests may be specified either by:
 
-  * Regular expressions matched against the incoming URL requested, in
-    a similar fashion to the way that "RewriteRule" works in Apache's
-    mod_rewrite.
+* Regular expressions matched against the incoming URL requested, in
+a similar fashion to the way that "RewriteRule" works in Apache's
+mod_rewrite.
 
-  * Via Javascript callbacks, which are based upon the requested URL
-    path.
+* Via Javascript callbacks, which are based upon the requested URL path.
 
 Both of these are demonstrated by the configuration files provided in
 the ./examples subdirectory.
@@ -76,8 +71,8 @@ the server appropriately.
 Bugs?
 -----
 
-  Please report bugs to the author, where they will be fixed as
- quickly as possible.
+Please report bugs to the author, where they will be fixed as
+quickly as possible.
 
 
 Steve
