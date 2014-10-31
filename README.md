@@ -3,7 +3,7 @@ Homepage:
     http://www.steve.org.uk/Software/node-reverse-proxy
 
 Repository:
-    http://github.com/skx/node-reverse-proxy/
+    http://github.com/skx/node-reverse-proxy.js/
 
 Author:
     Steve Kemp <steve@steve.org.uk>
